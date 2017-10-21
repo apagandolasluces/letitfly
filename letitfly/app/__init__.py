@@ -15,8 +15,10 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
+    from app.models import drives_model, users_model
+
     # POST /register
-    @app.route("/register", ['POST'])
+    @app.route("/register", methods=['POST'])
     def hello():
         return "Hello World!"
 
