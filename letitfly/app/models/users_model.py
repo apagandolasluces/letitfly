@@ -15,6 +15,8 @@ class Users(db.Model):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(25), nullable=False)
 
+    rides = db.relationship('Rides', backref='user_test', lazy='dynamic')
+
     def __init__(self, first_name, last_name, credit_card, email,
                  driver, username, password):
         """Iniitalize with name"""
