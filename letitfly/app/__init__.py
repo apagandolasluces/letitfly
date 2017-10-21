@@ -31,14 +31,25 @@ def create_app(config_name):
                 first_name='Test',
                 last_name='Test Last',
                 credit_card=1234,
-                email='test@te.com',
+                email='test311@t1e.scom',
                 driver=False,
-                username='testname',
+                username='1311testnsame',
                 password='test'
                 )
         temp_user.save()
+        temp_user1 = users_model.Users(
+                first_name='Test',
+                last_name='Test Last',
+                credit_card=1234,
+                email='tes3t21@t11e.com',
+                driver=False,
+                username='2121te1stname',
+                password='test'
+                )
+        temp_user1.save()
         temp_ride = drives_model.Rides(
-                user_test=temp_user,
+                customer=temp_user,
+                driver=temp_user1,
                 start_location='Test Last',
                 end_location='Test Last',
                 time_finished='Test Last',
