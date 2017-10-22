@@ -1,5 +1,4 @@
 from datetime import datetime
-from flask import jsonify
 from app.models.users_model import User
 
 
@@ -93,13 +92,27 @@ def put(args):
 
 def get(args):
     """
-    Gets user
-    :args: user email
+    Edit user info
+    :args: user info
     """
+
+    # find user in database
     user = User.query.filter_by(email=args['email']).first()
 
+    # makes user info updates
     if user:
-        return user.json()
+        for key in args:
+            if hasattr(user, key):
+                user.key = args[key]
+
+    # note when user info updated
+    user.date_modified = str(datetime.now())
+
+    # save changes
+    user.save()
+
+    return user.tojson()
+
     else:
         return None
 
@@ -118,5 +131,5 @@ def manipulation(args):
     Selects correct method via dict
     :args: arguments
     """
-    response = user_request[args['type']](args)
+    response = user_request[args['request']](args) # need args to include http request
     return response

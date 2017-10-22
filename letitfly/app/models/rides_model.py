@@ -11,17 +11,21 @@ class Ride(db.Model):
     driver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     start_location = db.Column(db.String(50))
     end_location = db.Column(db.String(50))
+    time_started = db.Column(db.String(50))
     time_finished = db.Column(db.String(50))
     cost = db.Column(db.String)
+    date_modified = db.Column(db.String)
 
     def __init__(self, ride_id, customer_id,
                  driver_id, start_location,
-                 end_location, time_finished, cost):
+                 end_location, time_started,
+                 time_finished, cost):
         self.ride_id = ride_id
         self.customer_id = customer_id
         self.driver_id = driver_id
         self.start_location = start_location
         self.end_location = end_location
+        self.time_started = time_started
         self.time_finished = time_finished
         self.cost = cost
 
