@@ -42,7 +42,7 @@ class UserAPITestCase(unittest.TestCase):
                 "password": "a"
                 }
         # binds the app to the current context
-        with self.app.app_context():
+        # with self.app.app_context():
             # create all tables
             # db.create_all()
 
