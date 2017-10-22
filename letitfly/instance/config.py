@@ -17,7 +17,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:yuuki3327@localhost/test_db'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:yuuki3327@localhost/flask_api_test'
     DEBUG = True
 
 

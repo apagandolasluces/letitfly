@@ -143,4 +143,8 @@ def create_app(config_name):
 
         return "Hello World!"
 
+    @app.route("/hello", methods=['GET'])
+    def say_hello():
+        return 'hello'
+
     return app
