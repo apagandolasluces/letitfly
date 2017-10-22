@@ -54,13 +54,13 @@ def create_app(config_name):
             else:
                 # User does not exist. Therefore, we return an error message
                 response = {
-                        'message': 'Invalid email or password, Please try again'
+                        'err': 'Invalid username or password, Please try again'
                         }
                 return make_response(jsonify(response)), 401
 
         except Exception as e:
             # Create a response containing an string error message
-            response = {'message': str(e)}
+            response = {'err': str(e)}
             # Return a server error using the HTTP Error Code 500 (Internal Server Error)
             return make_response(jsonify(response)), 500
 
