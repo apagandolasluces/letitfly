@@ -6,10 +6,12 @@ python:
 services:
         - mysql
 
+before_script: cd ./letitfly
+
 before_install:
         - mysql -e 'CREATE DATABASE IF NOT EXISTS flask_api_test;'
 
 install:
-        - pip install -r ./letitfly/requirements.txt
+        - pip install -r ./requirements.txt
 
-script: python ./letitfly/manage.py test
+script: python ./manage.py test
