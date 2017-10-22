@@ -9,7 +9,7 @@ services:
 
 before_install:
         - mysql -e 'CREATE DATABASE IF NOT EXISTS flask_api_test;'
-        - cs ./letitfly
+        - cd ./letitfly
 
 install:
         - pip install -r ./requirements.txt
