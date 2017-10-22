@@ -1,7 +1,7 @@
-from app import db
+from app.models.database import db
 
 
-class Users(db.Model):
+class User(db.Model):
     """This class represents the customers and drivers table"""
 
     __tablename__ = 'users'
@@ -14,10 +14,13 @@ class Users(db.Model):
     driver = db.Column(db.Boolean)
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(25), nullable=False)
+    date_created = db.Column(db.String(50))
+    date_modified = db.Column(db.String(50))
 
     def __init__(self, first_name, last_name, credit_card, email,
-                 driver, username, password):
-        """Iniitalize with name"""
+                 driver, username, password, date_created,
+                 date_modified):
+        """Iniitalize with user info"""
         self.first_name = first_name
         self.last_name = last_name
         self.credit_card = credit_card
@@ -25,6 +28,8 @@ class Users(db.Model):
         self.driver = driver
         self.username = username
         self.password = password
+        self.date_created = date_created
+        self.date_modified = date_modified
 
     def save(self):
         """Add user to database"""
@@ -39,3 +44,12 @@ class Users(db.Model):
     def __repr__(self):
         """Represent user by name"""
         return "{} {}".format(self.first_name, self.last_name)
+
+    def tojson(self):
+        """Represent user data as JSON object"""
+        return {
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'driver': self.driver
+        }
