@@ -26,22 +26,20 @@ def create_app(config_name):
     # POST /auth
     # Flask-JWT auto generate /auth 
     # POST /register
-    @app.route("/register", methods=['POST'])
+    """
+    Sample json data
+    {
+        "first_name": "a",
+        "last_name": "a12",
+        "credit_card": 1234,
+        "email": "1.@.1c22o1m1",
+        "driver": false,
+        "username": "na21211me",
+        "password": "a"
+    }
+    """
+    @app.route('/register', methods=['POST'])
     def register():
-        # Check if all required attr exist
-        # first_name
-        # last_name
-        # credit_card
-        # driver
-        # username
-        # passowrd
-        # if (!request.data or !request.data.get('first_name') or
-        #         !request.data.get('last_name') or !request.data.get('credit_card') or
-        #         !request.data.get('email') or !request.data.get('driver') or
-        #         !request.data.get('username') or !request.data.get('password')):
-        #     content = {'err': 'One or more necessary data is missing'}
-        #     return content, status.HTTP_400_BAD_REQUEST
-
         try:
             user_data = request.data
             temp_user = users_model.Users(
@@ -56,10 +54,15 @@ def create_app(config_name):
             temp_user.save()
             content = {'message': 'New user created'}
             status_code = status.HTTP_201_CREATED
-        except exc.IntegrityError:
-            content = {'err': 'One or more necessary data is missing'}
+        except exc.OperationalError:
+            # SQLalchemy missing value
             e = sys.exc_info()[0]
-            content = {'err': 'Error from SQLAlchemy', 'info': 'Error: %s' % e}
+            content = {'err': 'Missing value', 'info': 'Error: %s' % e}
+            status_code = status.HTTP_400_BAD_REQUEST
+        except exc.IntegrityError:
+            # SQLalchemy insertion error (such as duplicate value)
+            e = sys.exc_info()[0]
+            content = {'err': 'Duplicate value', 'info': 'Error: %s' % e}
             status_code = status.HTTP_400_BAD_REQUEST
         except:
             e = sys.exc_info()[0]
