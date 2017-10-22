@@ -44,7 +44,7 @@ class UserAPITestCase(unittest.TestCase):
         # binds the app to the current context
         with self.app.app_context():
             # create all tables
-            db.create_all()
+            # db.create_all()
 
     """Helper methods"""
     def jsonify(self, data):
