@@ -40,6 +40,7 @@ class UserAPITestCase(unittest.TestCase):
     def register(self, data):
         return self.client().post('/register', data=data)
 
+    """Testing cases"""
     def test_GET_hello(self):
         """Test it can call GET /hello and get hello"""
         res = self.client().get('/hello')
@@ -61,11 +62,13 @@ class UserAPITestCase(unittest.TestCase):
         self.assertIn('Missing value', str(res_in_json['err']))
 
     def test_POST_register_dup_attr(self):
-        """Test it returns 400 when one or more value is missing"""
-        res = self.register(self.missing_value_user_data)
+        """Test it returns 400 when email or 
+        username already taken (duplicate)"""
+        self.register(self.value_user_data)
+        res = self.register(self.value_user_data)
         res_in_json = self.jsonify(res.data)
         self.assertEqual(res.status_code, 400)
-        self.assertIn('Missing value', str(res_in_json['err']))
+        self.assertIn('Duplicate value', str(res_in_json['err']))
 
     def tearDown(self):
         """teardown all initialized variables."""
