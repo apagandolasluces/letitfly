@@ -10,6 +10,6 @@ before_install:
         - mysql -e 'CREATE DATABASE IF NOT EXISTS flask_api_test;'
 
 install:
-        - pip install -r requirements.txt
+        - pip install -r ./letitfly/requirements.txt
 
 script: python manage.py test
