@@ -3,9 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Blueprint, render_template, abort, request, make_response, jsonify  # Blueprints
 
 # For route
-from werkzeug.security import safe_str_cmp
 from sqlalchemy import exc
-import sys
+from functools import wraps
 
 # local import
 from instance.config import app_config
@@ -39,11 +38,14 @@ def create_app(config_name):
     def authenticate():
         try:
             # Get the user object using their email (unique to every user)
-            user = Users.query.filter_by(username=request.data['username']).first()
+            user = Users.query.filter_by(
+                    username=request.data['username']
+                    ).first()
 
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
-                # Generate the access token. This will be used as the authorization header
+                # Generate the access token.
+                # This will be used as the authorization header
                 access_token = user.generate_token(user.user_id)
                 if access_token:
                     response = {
@@ -61,7 +63,8 @@ def create_app(config_name):
         except Exception as e:
             # Create a response containing an string error message
             response = {'err': str(e)}
-            # Return a server error using the HTTP Error Code 500 (Internal Server Error)
+            # Return a server error using the HTTP Error
+            # Code 500 (Internal Server Error)
             return make_response(jsonify(response)), 500
 
     # POST /register
@@ -93,22 +96,61 @@ def create_app(config_name):
             temp_user.save()
             content = {'message': 'New user created'}
             status_code = status.HTTP_201_CREATED
-        except exc.OperationalError:
+        except exc.OperationalError as e:
             # SQLalchemy missing value
-            e = sys.exc_info()[0]
             content = {'err': 'Missing value', 'info': 'Error: %s' % e}
             status_code = status.HTTP_400_BAD_REQUEST
-        except exc.IntegrityError:
+        except exc.IntegrityError as e:
             # SQLalchemy insertion error (such as duplicate value)
-            e = sys.exc_info()[0]
             content = {'err': 'Duplicate value', 'info': 'Error: %s' % e}
             status_code = status.HTTP_400_BAD_REQUEST
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             content = {'err': 'Something went wrong', 'info': 'Error: %s' % e}
             status_code = status.HTTP_400_BAD_REQUEST
         finally:
             return content, status_code
+
+    """
+    Helper methods
+    get request object and parse access token
+    """
+    def parse_access_token(req):
+        try:
+            auth_header = request.headers.get('Authorization')
+            return auth_header.split(" ")[1]
+        except Exception as e:
+            return
+
+    @app.route("/request", methods=['POST'])
+    def request_ride():
+        access_token = parse_access_token(request)
+        # Access token found
+        if(access_token):
+            try:
+                # Decode access token and get user_id that
+                # belongs to the user who requested the ride
+                user_id = Users.decode_token(access_token)
+                ride_data = request.data
+                user = Users.find_one_user_by_user_id(user_id)
+                temp_ride = Rides(
+                        customer=user,
+                        # driver is null at this moment
+                        start_location='Test Last',
+                        end_location='Test Last',
+                        )
+                temp_ride.save()
+                response = {'message': 'Ride requested successfully'}
+                status_code = status.HTTP_201_CREATED
+            except Exception as e:
+                response = {'err': 'Something went wrong', 'info': 'Error: %s' % e}
+                status_code = status.HTTP_400_BAD_REQUEST
+            finally:
+                return response, status_code
+        # Access token found
+        else:
+            response = {'err': 'No access token found'}
+            status_code = status.HTTP_400_BAD_REQUEST
+            return response, status_code
 
     @app.route("/test", methods=['GET'])
     def hello():

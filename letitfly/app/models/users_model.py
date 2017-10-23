@@ -72,6 +72,17 @@ class Users(db.Model):
             # return an error in string format if an exception occurs
             return str(e)
 
+    def find_one_user_by_user_id(self, user_id):
+        """Find one user by user_id (Primary Key)"""
+        try:
+            user = Users.query.filter_by(
+                    user_id=user_id
+                    ).first()
+            return user
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
+
     @staticmethod
     def decode_token(token):
         """Decode the access token from the Authorization header."""

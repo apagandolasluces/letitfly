@@ -43,6 +43,7 @@ class UserAPITestCase(unittest.TestCase):
         # binds the app to the current context
         with self.app.app_context():
             # create all tables
+            db.drop_all()
             db.create_all()
 
     """Helper methods"""
@@ -76,6 +77,7 @@ class UserAPITestCase(unittest.TestCase):
         """Test it returns 201 """
         res = self.register(self.user_data)
         res_in_json = self.jsonify(res.data)
+        print(res_in_json)
         self.assertEqual(res.status_code, 201)
         self.assertIn('New user created', str(res_in_json['message']))
 
@@ -87,7 +89,7 @@ class UserAPITestCase(unittest.TestCase):
         self.assertIn('Missing value', str(res_in_json['err']))
 
     def test_POST_register_dup_attr(self):
-        """Test it returns 400 when email or 
+        """Test it returns 400 when email or
         username already taken (duplicate)"""
         self.register(self.user_data)
         res = self.register(self.user_data)
@@ -116,30 +118,58 @@ class UserAPITestCase(unittest.TestCase):
                 'username',
                 str(res_in_json['err']))
 
-        def test_POST_auth_wrong_username(self):
-            """Test it returns 401 for wrong username"""
+    def test_POST_auth_wrong_username(self):
+        """Test it returns 401 for wrong username"""
         self.register(self.user_data)
         res = self.auth(self.wrong_username_user_auth_data)
         res_in_json = self.jsonify(res.data)
-        print(str(res.data))
         self.assertEqual(res.status_code, 401)
         self.assertIn(
-                'Invalid username or password',
-                str(res_in_json['err']))
+            'Invalid username or password',
+            str(res_in_json['err']))
 
-        def test_POST_auth_wrong_password(self):
-            """Test it returns 401 for wrong password"""
+    def test_POST_auth_wrong_password(self):
+        """Test it returns 401 for wrong password"""
         self.register(self.user_data)
         res = self.auth(self.wrong_username_user_auth_data)
         res_in_json = self.jsonify(res.data)
-        print(str(res.data))
         self.assertEqual(res.status_code, 401)
         self.assertIn(
-                'Invalid username or password',
+            'Invalid username or password',
+            str(res_in_json['err']))
+
+    """Testing POST /request"""
+    def test_POST_request(self):
+        """Test it returns 201"""
+        # Register a user
+        # self.register(self.user_data)
+        # Auth the user
+        # self.auth(self.user_auth_data)
+        res = self.client().post(
+                '/request',
+                # data=json.dumps(data),
+                # content_type='application/json'
+                )
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(
+                'Request sccessful',
+                str(res_in_json['message']))
+        self.assertIsNotNone(res_in_json['ride_id'])
+
+    def test_POST_request_no_jwt(self):
+        """Test it returns 400"""
+        res = self.client().post(
+                '/request',
+                )
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn(
+                'No access token found',
                 str(res_in_json['err']))
 
-        def tearDown(self):
-            """teardown all initialized variables."""
+    def tearDown(self):
+        """teardown all initialized variables."""
         with self.app.app_context():
             # drop all tables
             db.session.remove()
