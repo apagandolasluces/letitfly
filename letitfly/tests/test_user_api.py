@@ -1,5 +1,4 @@
 import unittest
-import os
 import json
 from app import create_app, db
 
@@ -73,78 +72,78 @@ class UserAPITestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('hello', str(res.data))
 
-#     def test_POST_register(self):
-#         """Test it returns 201 """
-#         res = self.register(self.user_data)
-#         res_in_json = self.jsonify(res.data)
-#         self.assertEqual(res.status_code, 201)
-#         self.assertIn('New user created', str(res_in_json['message']))
-# 
-#     def test_POST_register_missing_attr(self):
-#         """Test it returns 400 when one or more value is missing"""
-#         res = self.register(self.missing_value_user_data)
-#         res_in_json = self.jsonify(res.data)
-#         self.assertEqual(res.status_code, 400)
-#         self.assertIn('Missing value', str(res_in_json['err']))
-# 
-#     def test_POST_register_dup_attr(self):
-#         """Test it returns 400 when email or 
-#         username already taken (duplicate)"""
-#         self.register(self.user_data)
-#         res = self.register(self.user_data)
-#         res_in_json = self.jsonify(res.data)
-#         self.assertEqual(res.status_code, 400)
-#         self.assertIn('Duplicate value', str(res_in_json['err']))
-# 
-#     """Testing POST /auth"""
-#     def test_POST_auth(self):
-#         """Test it returns 200 with correct username and password"""
-#         self.register(self.user_data)
-#         res = self.auth(self.user_auth_data)
-#         res_in_json = self.jsonify(res.data)
-#         self.assertEqual(res.status_code, 200)
-#         self.assertIn(
-#                 'You logged in successfully',
-#                 str(res_in_json['message']))
-#         self.assertIsNotNone(res_in_json['access_token'])
-# 
-#     def test_POST_auth_missing_value(self):
-#         """Test it returns 500 for missing value"""
-#         res = self.auth(self.missing_value_user_auth_data)
-#         res_in_json = self.jsonify(res.data)
-#         self.assertEqual(res.status_code, 500)
-#         self.assertIn(
-#                 'username',
-#                 str(res_in_json['err']))
-# 
-#     def test_POST_auth_wrong_username(self):
-#         """Test it returns 401 for wrong username"""
-#         self.register(self.user_data)
-#         res = self.auth(self.wrong_username_user_auth_data)
-#         res_in_json = self.jsonify(res.data)
-#         print(str(res.data))
-#         self.assertEqual(res.status_code, 401)
-#         self.assertIn(
-#                 'Invalid username or password',
-#                 str(res_in_json['err']))
-# 
-#     def test_POST_auth_wrong_password(self):
-#         """Test it returns 401 for wrong password"""
-#         self.register(self.user_data)
-#         res = self.auth(self.wrong_username_user_auth_data)
-#         res_in_json = self.jsonify(res.data)
-#         print(str(res.data))
-#         self.assertEqual(res.status_code, 401)
-#         self.assertIn(
-#                 'Invalid username or password',
-#                 str(res_in_json['err']))
-# 
-#     def tearDown(self):
-#         """teardown all initialized variables."""
-#         with self.app.app_context():
-#             # drop all tables
-#             db.session.remove()
-#             db.drop_all()
+    def test_POST_register(self):
+        """Test it returns 201 """
+        res = self.register(self.user_data)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('New user created', str(res_in_json['message']))
+
+    def test_POST_register_missing_attr(self):
+        """Test it returns 400 when one or more value is missing"""
+        res = self.register(self.missing_value_user_data)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('Missing value', str(res_in_json['err']))
+
+    def test_POST_register_dup_attr(self):
+        """Test it returns 400 when email or 
+        username already taken (duplicate)"""
+        self.register(self.user_data)
+        res = self.register(self.user_data)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('Duplicate value', str(res_in_json['err']))
+
+    """Testing POST /auth"""
+    def test_POST_auth(self):
+        """Test it returns 200 with correct username and password"""
+        self.register(self.user_data)
+        res = self.auth(self.user_auth_data)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(
+                'You logged in successfully',
+                str(res_in_json['message']))
+        self.assertIsNotNone(res_in_json['access_token'])
+
+    def test_POST_auth_missing_value(self):
+        """Test it returns 500 for missing value"""
+        res = self.auth(self.missing_value_user_auth_data)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 500)
+        self.assertIn(
+                'username',
+                str(res_in_json['err']))
+
+        def test_POST_auth_wrong_username(self):
+            """Test it returns 401 for wrong username"""
+        self.register(self.user_data)
+        res = self.auth(self.wrong_username_user_auth_data)
+        res_in_json = self.jsonify(res.data)
+        print(str(res.data))
+        self.assertEqual(res.status_code, 401)
+        self.assertIn(
+                'Invalid username or password',
+                str(res_in_json['err']))
+
+        def test_POST_auth_wrong_password(self):
+            """Test it returns 401 for wrong password"""
+        self.register(self.user_data)
+        res = self.auth(self.wrong_username_user_auth_data)
+        res_in_json = self.jsonify(res.data)
+        print(str(res.data))
+        self.assertEqual(res.status_code, 401)
+        self.assertIn(
+                'Invalid username or password',
+                str(res_in_json['err']))
+
+        def tearDown(self):
+            """teardown all initialized variables."""
+        with self.app.app_context():
+            # drop all tables
+            db.session.remove()
+            db.drop_all()
 
 
 # Make the tests conveniently executable
