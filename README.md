@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/YukiKuroshima/CS160.svg?branch=master)](https://travis-ci.org/YukiKuroshima/CS160)
+
 # CS 160 uber project
 
 # API endpoints
