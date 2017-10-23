@@ -40,6 +40,18 @@ class UserAPITestCase(unittest.TestCase):
                 "username": "1n1a2me",
                 "password": "a"
                 }
+        self.missing_start_location = {
+                # "start_location": "Start from here test",
+                "end_location": "End here test"
+                }
+        self.missing_end_location = {
+                "start_location": "Start from here test"
+                # "end_location": "End here test"
+                }
+        self.location_data = {
+                "start_location": "Start from here test",
+                "end_location": "End here test"
+                }
         # binds the app to the current context
         with self.app.app_context():
             # create all tables
@@ -62,6 +74,27 @@ class UserAPITestCase(unittest.TestCase):
                 '/auth',
                 data=json.dumps(data),
                 content_type='application/json'
+                )
+
+    """Register and auth a user and return the token"""
+    def register_and_auth(self, data):
+        self.register(data)
+        username = data['username']
+        password = data['password']
+        auth_data = {
+                "username": username,
+                "password": password
+                }
+        res = self.auth(auth_data)
+        res_in_json = self.jsonify(res.data)
+        return res_in_json['access_token']
+
+    def request_a_ride(self, data, token):
+        return self.client().post(
+                '/request',
+                data=json.dumps(data),
+                content_type='application/json',
+                headers=dict(Authorization="Bearer " + token)
                 )
 
     """Testing cases"""
@@ -141,21 +174,42 @@ class UserAPITestCase(unittest.TestCase):
     """Testing POST /request"""
     def test_POST_request(self):
         """Test it returns 201"""
-        # Register a user
-        # self.register(self.user_data)
-        # Auth the user
-        # self.auth(self.user_auth_data)
-        res = self.client().post(
-                '/request',
-                # data=json.dumps(data),
-                # content_type='application/json'
-                )
+        token = self.register_and_auth(self.user_data)
+        res = self.request_a_ride(self.location_data, token)
         res_in_json = self.jsonify(res.data)
         self.assertEqual(res.status_code, 201)
         self.assertIn(
-                'Request sccessful',
+                'Ride requested successfully',
                 str(res_in_json['message']))
-        self.assertIsNotNone(res_in_json['ride_id'])
+        self.assertIsInstance(res_in_json['ride_id'], int)
+
+    def test_POST_request_missing_start_location(self):
+        """Test it returns 400 for missing start location"""
+        token = self.register_and_auth(self.user_data)
+        res = self.request_a_ride(self.missing_start_location, token)
+        res_in_json = self.jsonify(res.data)
+        print(res_in_json)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn(
+                'Missing value',
+                str(res_in_json['err']))
+        self.assertIn(
+                'start_location',
+                str(res_in_json['info']))
+
+    def test_POST_request_missing_end_location(self):
+        """Test it returns 400 for missing start location"""
+        token = self.register_and_auth(self.user_data)
+        res = self.request_a_ride(self.missing_end_location, token)
+        res_in_json = self.jsonify(res.data)
+        print(res_in_json)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn(
+                'Missing value',
+                str(res_in_json['err']))
+        self.assertIn(
+                'end_location',
+                str(res_in_json['info']))
 
     def test_POST_request_no_jwt(self):
         """Test it returns 400"""

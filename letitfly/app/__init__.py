@@ -4,7 +4,6 @@ from flask import Blueprint, render_template, abort, request, make_response, jso
 
 # For route
 from sqlalchemy import exc
-from functools import wraps
 
 # local import
 from instance.config import app_config
@@ -126,27 +125,46 @@ def create_app(config_name):
         access_token = parse_access_token(request)
         # Access token found
         if(access_token):
-            try:
-                # Decode access token and get user_id that
-                # belongs to the user who requested the ride
-                user_id = Users.decode_token(access_token)
-                ride_data = request.data
-                user = Users.find_one_user_by_user_id(user_id)
-                temp_ride = Rides(
-                        customer=user,
-                        # driver is null at this moment
-                        start_location='Test Last',
-                        end_location='Test Last',
-                        )
-                temp_ride.save()
-                response = {'message': 'Ride requested successfully'}
-                status_code = status.HTTP_201_CREATED
-            except Exception as e:
-                response = {'err': 'Something went wrong', 'info': 'Error: %s' % e}
+            user_id = Users.decode_token(access_token)
+            # Token is valid
+            if not isinstance(user_id, str):
+                try:
+                    # Decode access token and get user_id that
+                    # belongs to the user who requested the ride
+                    ride_data = request.data
+                    user = Users.find_one_user_by_user_id(user_id)
+                    temp_ride = Rides(
+                            customer=user,
+                            # driver is null at this moment
+                            start_location=ride_data['start_location'],
+                            end_location=ride_data['end_location'],
+                            )
+                    temp_ride.save()
+                    response = {
+                            'message': 'Ride requested successfully',
+                            'ride_id': temp_ride.get_self_ride_id()
+                            }
+                    status_code = status.HTTP_201_CREATED
+                except KeyError as e:
+                    response = {
+                            'err': 'Missing value',
+                            'info': 'Error: %s' % e
+                            }
+                    status_code = status.HTTP_400_BAD_REQUEST
+                except Exception as e:
+                    response = {
+                            'err': 'Something went wrong',
+                            'info': 'Error: %s' % e
+                            }
+                    status_code = status.HTTP_400_BAD_REQUEST
+                finally:
+                    return response, status_code
+            # Token is invalid
+            else:
+                response = {'err': user_id}
                 status_code = status.HTTP_400_BAD_REQUEST
-            finally:
                 return response, status_code
-        # Access token found
+        # Access token NOT found
         else:
             response = {'err': 'No access token found'}
             status_code = status.HTTP_400_BAD_REQUEST

@@ -8,11 +8,11 @@ class Rides(db.Model):
 
     ride_id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey(
-        'users.user_id'))
+        'users.user_id'), nullable=False)
     driver_id = db.Column(db.Integer, db.ForeignKey(
         'users.user_id'))
-    start_location = db.Column(db.String(50))
-    end_location = db.Column(db.String(50))
+    start_location = db.Column(db.String(50), nullable=False)
+    end_location = db.Column(db.String(50), nullable=False)
     time_finished = db.Column(db.String(50))
 
     customer = db.relationship(
@@ -36,6 +36,9 @@ class Rides(db.Model):
         """Delete ride from database"""
         db.session.delete(self)
         db.session.commit()
+
+    def get_self_ride_id(self):
+        return self.ride_id
 
     def __repr__(self):
         """Represent user by name"""

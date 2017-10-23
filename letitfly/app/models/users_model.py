@@ -56,7 +56,7 @@ class Users(db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'exp': datetime.utcnow() + timedelta(hours=24),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
@@ -72,13 +72,13 @@ class Users(db.Model):
             # return an error in string format if an exception occurs
             return str(e)
 
-    def find_one_user_by_user_id(self, user_id):
+    @staticmethod
+    def find_one_user_by_user_id(user_id):
         """Find one user by user_id (Primary Key)"""
         try:
-            user = Users.query.filter_by(
+            return Users.query.filter_by(
                     user_id=user_id
                     ).first()
-            return user
         except Exception as e:
             # return an error in string format if an exception occurs
             return str(e)
