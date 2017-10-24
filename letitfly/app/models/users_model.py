@@ -43,12 +43,21 @@ class Users(db.Model):
     def __repr__(self):
         """Represent user by name"""
         return "{} {}".format(self.first_name, self.last_name)
-    
+
     def password_is_valid(self, password):
         """
         Checks the password against it's hash to validates the user's password
         """
-        return safe_str_cmp(self.password.encode('utf-8'), password.encode('utf-8'))
+        return safe_str_cmp(
+                self.password.encode('utf-8'),
+                password.encode('utf-8'))
+
+    def am_i_driver(self):
+        """
+        Returns True if self is a driver
+        False if self is a customer
+        """
+        return self.driver
 
     def generate_token(self, user_id):
         """Generates the access token to be used as the Authorization header"""

@@ -170,6 +170,67 @@ def create_app(config_name):
             status_code = status.HTTP_400_BAD_REQUEST
             return response, status_code
 
+    """
+    GET /search
+    Find all the imcompleted ride requests
+    Only driver can access this API
+
+    Return JSON: List of imcompleted ride requests
+    """
+    @app.route("/search", methods=['GET'])
+    def seach_ride():
+        access_token = parse_access_token(request)
+        # Access token found
+        if(access_token):
+            user_id = Users.decode_token(access_token)
+            # Token is valid
+            if not isinstance(user_id, str):
+                try:
+                    # Decode access token and get user_id that
+                    # belongs to the user who requested the ride
+                    user = Users.find_one_user_by_user_id(user_id)
+                    # Check if the user is drivre or not
+                    if user.am_i_driver():
+                        # If driver, resume
+                        rides_json = Rides.find_all_not_picked_up_rides_in_json()
+                        response = {
+                                'message': 'Ride query return successfully',
+                                'rides': rides_json
+                                }
+                        status_code = status.HTTP_200_OK
+                    else:
+                        # If customer, reject
+                        response = {
+                                'err': 'You are not driver. Only drivre can see the requests',
+                                }
+                        status_code = status.HTTP_400_BAD_REQUEST
+                except KeyError as e:
+                    response = {
+                            'err': 'Missing value',
+                            'info': 'Error: %s' % e
+                            }
+                    status_code = status.HTTP_400_BAD_REQUEST
+                except Exception as e:
+                    response = {
+                            'err': 'Something went wrong',
+                            'info': 'Error: %s' % e
+                            }
+                    print(response)
+                    status_code = status.HTTP_400_BAD_REQUEST
+                finally:
+                    return response, status_code
+
+            # Token is invalid
+            else:
+                response = {'err': user_id}
+                status_code = status.HTTP_400_BAD_REQUEST
+                return response, status_code
+        # Access token NOT found
+        else:
+            response = {'err': 'No access token found'}
+            status_code = status.HTTP_400_BAD_REQUEST
+            return response, status_code
+
     @app.route("/test", methods=['GET'])
     def hello():
         temp_user = Users(

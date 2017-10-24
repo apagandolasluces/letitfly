@@ -17,6 +17,15 @@ class UserAPITestCase(unittest.TestCase):
                 "username": "n1a2me",
                 "password": "a"
                 }
+        self.driver_data = {
+                "first_name": "a",
+                "last_name": "a",
+                "credit_card": 1234,
+                "email": "1.@.1c12om",
+                "driver": True,
+                "username": "n1a2me",
+                "password": "a"
+                }
         self.missing_value_user_data = {
                 "first_name": "a",
                 "last_name": "a",
@@ -26,8 +35,7 @@ class UserAPITestCase(unittest.TestCase):
                 "password": "a"
                 }
         self.user_auth_data = {
-                "username": "n1a2me",
-                "password": "a"
+                "username": "n1a2me", "password": "a"
                 }
         self.missing_value_user_auth_data = {
                 "password": "a"
@@ -62,6 +70,35 @@ class UserAPITestCase(unittest.TestCase):
     def jsonify(self, data):
         return json.loads(data.decode('utf-8'))
 
+    """
+    Create n users and return as a list
+    """
+    def create_n_users(self, size):
+        users = []
+        for i in range(size):
+            users.append({
+                "first_name": "First%d" % i,
+                "last_name": "First%d" % i,
+                "credit_card": i,
+                "email": "%dgmai.com" % i,
+                "username": "username%d" % i,
+                "driver": False,
+                "password": "%d" % i
+                })
+        return users
+
+    """
+    Create n ride request and return as a list
+    """
+    def create_n_ride_data(self, size):
+        ride_data = []
+        for i in range(size):
+            ride_data.append({
+                "start_location": "Start from here%d" % i,
+                "end_location": "End here%d" % i,
+                })
+        return ride_data
+
     def register(self, data):
         return self.client().post(
                 '/register',
@@ -89,12 +126,43 @@ class UserAPITestCase(unittest.TestCase):
         res_in_json = self.jsonify(res.data)
         return res_in_json['access_token']
 
+    """Register and auth multiple users and return the tokens as array"""
+    # Data: List of user datas
+    def register_and_auth_users(self, data):
+        tokens = []
+        for user_info in data:
+            tokens.append(self.register_and_auth(user_info))
+        return tokens
+
     def request_a_ride(self, data, token):
-        return self.client().post(
+        res = self.client().post(
                 '/request',
                 data=json.dumps(data),
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
+                )
+        return res
+
+    """
+    Put n of ride request into database
+    data: List of request data
+    * start_location
+    * end_location
+
+    tokens: List of JWTs
+
+    return: void
+    """
+    def request_rides(self, data, tokens):
+        for ride_req, token in zip(data, tokens):
+            self.request_a_ride(ride_req, token)
+
+    def search_rides(self, token):
+        print("search rides " + str(type(token)))
+        print("search rides " + token)
+        return self.client().get(
+                '/search',
+                headers=dict(Authorization="Bearer " + str(token))
                 )
 
     """Testing cases"""
@@ -188,7 +256,6 @@ class UserAPITestCase(unittest.TestCase):
         token = self.register_and_auth(self.user_data)
         res = self.request_a_ride(self.missing_start_location, token)
         res_in_json = self.jsonify(res.data)
-        print(res_in_json)
         self.assertEqual(res.status_code, 400)
         self.assertIn(
                 'Missing value',
@@ -202,7 +269,6 @@ class UserAPITestCase(unittest.TestCase):
         token = self.register_and_auth(self.user_data)
         res = self.request_a_ride(self.missing_end_location, token)
         res_in_json = self.jsonify(res.data)
-        print(res_in_json)
         self.assertEqual(res.status_code, 400)
         self.assertIn(
                 'Missing value',
@@ -221,6 +287,33 @@ class UserAPITestCase(unittest.TestCase):
         self.assertIn(
                 'No access token found',
                 str(res_in_json['err']))
+
+    def test_GET_search(self):
+        """Test it returns 200 and query result"""
+        SIZE = 5
+        # Regi and auth one driver
+        driver_token = self.register_and_auth(self.driver_data)
+        # Create 5 users
+        users = self.create_n_users(SIZE)
+        # Regi and auth 5 users
+        user_tokens = self.register_and_auth_users(users)
+        # Create 5 ride data
+        ride_data = self.create_n_ride_data(SIZE)
+        # Request 5 rides
+        self.request_rides(ride_data, user_tokens)
+        # Make API call to get all ride req data
+        print(driver_token)
+        print(type(driver_token))
+        res = self.search_rides(driver_token)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(
+                'Ride query return successfully',
+                str(res_in_json['message']))
+
+    def test_GET_search_none_driver_cannot_get_result(self):
+        """Test it returns 400 for customre (none driver)"""
+        self.assertIsInstance('a', int)
 
     def tearDown(self):
         """teardown all initialized variables."""
