@@ -201,7 +201,7 @@ def create_app(config_name):
                     else:
                         # If customer, reject
                         response = {
-                                'err': 'You are not driver. Only drivre can see the requests',
+                                'err': 'You are not driver. Only driver can see the requests',
                                 }
                         status_code = status.HTTP_400_BAD_REQUEST
                 except KeyError as e:
@@ -215,7 +215,6 @@ def create_app(config_name):
                             'err': 'Something went wrong',
                             'info': 'Error: %s' % e
                             }
-                    print(response)
                     status_code = status.HTTP_400_BAD_REQUEST
                 finally:
                     return response, status_code

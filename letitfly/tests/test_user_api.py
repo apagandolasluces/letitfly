@@ -285,8 +285,7 @@ class UserAPITestCase(unittest.TestCase):
         res_in_json = self.jsonify(res.data)
         self.assertEqual(res.status_code, 400)
         self.assertIn(
-                'No access token found',
-                str(res_in_json['err']))
+                'No access token found', str(res_in_json['err']))
 
     def test_GET_search(self):
         """Test it returns 200 and query result"""
@@ -302,18 +301,35 @@ class UserAPITestCase(unittest.TestCase):
         # Request 5 rides
         self.request_rides(ride_data, user_tokens)
         # Make API call to get all ride req data
-        print(driver_token)
-        print(type(driver_token))
         res = self.search_rides(driver_token)
         res_in_json = self.jsonify(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertIn(
                 'Ride query return successfully',
                 str(res_in_json['message']))
+        self.assertIs(SIZE, len(res_in_json['rides']))
 
     def test_GET_search_none_driver_cannot_get_result(self):
         """Test it returns 400 for customre (none driver)"""
-        self.assertIsInstance('a', int)
+        user_token = self.register_and_auth(self.user_data)
+        res = self.search_rides(user_token)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 400)
+        self.assertIn(
+                'You are not driver. Only driver can see the requests',
+                str(res_in_json['err']))
+
+    def test_GET_search_empty_list(self):
+        """Test it returns 200 and empty list if there is no request"""
+        # Regi and auth one driver
+        driver_token = self.register_and_auth(self.driver_data)
+        # Make API call to get all ride req data
+        res = self.search_rides(driver_token)
+        res_in_json = self.jsonify(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(
+                'Ride query return successfully',
+                str(res_in_json['message']))
 
     def tearDown(self):
         """teardown all initialized variables."""
