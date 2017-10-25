@@ -1,6 +1,8 @@
 from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
 from app.models.database import db
+from app.models.users_model import User 
+from app.models.drives_model import Rides
 from flask import Blueprint, render_template, abort, request, make_response, jsonify  # Blueprints
 
 # For route
@@ -39,7 +41,7 @@ def create_app(config_name):
     def authenticate():
         try:
             # Get the user object using their email (unique to every user)
-            user = Users.query.filter_by(
+            user = User.query.filter_by(
                     username=request.data['username']
                     ).first()
 
@@ -85,7 +87,7 @@ def create_app(config_name):
     def register():
         try:
             user_data = request.data
-            temp_user = Users(
+            temp_user = User(
                     first_name=user_data.get('first_name'),
                     last_name=user_data.get('last_name'),
                     credit_card=user_data.get('credit_card'),
@@ -93,6 +95,8 @@ def create_app(config_name):
                     driver=user_data.get('driver'),
                     username=user_data.get('username'),
                     password=user_data.get('password'),
+                    date_created='S',
+                    date_modified='S',
                     )
             temp_user.save()
             content = {'message': 'New user created'}
@@ -106,6 +110,8 @@ def create_app(config_name):
             content = {'err': 'Duplicate value', 'info': 'Error: %s' % e}
             status_code = status.HTTP_400_BAD_REQUEST
         except Exception as e:
+            print("*" * 50)
+            print(e)
             content = {'err': 'Something went wrong', 'info': 'Error: %s' % e}
             status_code = status.HTTP_400_BAD_REQUEST
         finally:
@@ -127,14 +133,14 @@ def create_app(config_name):
         access_token = parse_access_token(request)
         # Access token found
         if(access_token):
-            user_id = Users.decode_token(access_token)
+            user_id = User.decode_token(access_token)
             # Token is valid
             if not isinstance(user_id, str):
                 try:
                     # Decode access token and get user_id that
                     # belongs to the user who requested the ride
                     ride_data = request.data
-                    user = Users.find_one_user_by_user_id(user_id)
+                    user = User.find_user_by_user_id(user_id)
                     temp_ride = Rides(
                             customer=user,
                             # driver is null at this moment
@@ -154,6 +160,8 @@ def create_app(config_name):
                             }
                     status_code = status.HTTP_400_BAD_REQUEST
                 except Exception as e:
+                    print("*" * 50)
+                    print(e)
                     response = {
                             'err': 'Something went wrong',
                             'info': 'Error: %s' % e
@@ -184,13 +192,13 @@ def create_app(config_name):
         access_token = parse_access_token(request)
         # Access token found
         if(access_token):
-            user_id = Users.decode_token(access_token)
+            user_id = User.decode_token(access_token)
             # Token is valid
             if not isinstance(user_id, str):
                 try:
                     # Decode access token and get user_id that
                     # belongs to the user who requested the ride
-                    user = Users.find_one_user_by_user_id(user_id)
+                    user = User.find_user_by_user_id(user_id)
                     # Check if the user is drivre or not
                     if user.is_driver():
                         # If driver, resume
@@ -213,6 +221,8 @@ def create_app(config_name):
                             }
                     status_code = status.HTTP_400_BAD_REQUEST
                 except Exception as e:
+                    print("$" * 50)
+                    print(e)
                     response = {
                             'err': 'Something went wrong',
                             'info': 'Error: %s' % e
@@ -234,24 +244,28 @@ def create_app(config_name):
 
     @app.route("/test", methods=['GET'])
     def hello():
-        temp_user = Users(
+        temp_user = User(
                 first_name='Test',
                 last_name='Test Last',
                 credit_card=1234,
-                email='test311@t1e.scom',
+                email='test3211@t1e.scom',
                 driver=False,
-                username='1311testnsame',
-                password='test'
+                username='13211testnsame',
+                password='test',
+                date_created='test',
+                date_modified='test'
                 )
         temp_user.save()
-        temp_user1 = Users(
+        temp_user1 = User(
                 first_name='Test',
                 last_name='Test Last',
                 credit_card=1234,
-                email='tes3t21@t11e.com',
+                email='tes3t1j21@t11e.com',
                 driver=False,
-                username='2121te1stname',
-                password='test'
+                username='2wk121te1stname',
+                password='test',
+                date_created='test',
+                date_modified='test'
                 )
         temp_user1.save()
         temp_ride = Rides(
