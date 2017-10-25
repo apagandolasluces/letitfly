@@ -100,7 +100,7 @@ class User(db.Model):
     def find_user_by_user_id(user_id):
         """Find one user by user_id (Primary Key)"""
         try:
-            return Users.query.filter_by(
+            return User.query.filter_by(
                     user_id=user_id
                     ).first()
         except Exception as e:

@@ -1,4 +1,5 @@
 from app import db
+from app.models.users_model import User
 
 
 class Rides(db.Model):
@@ -19,13 +20,13 @@ class Rides(db.Model):
     picked_up = db.Column(db.Boolean, default=False)
 
     customer = db.relationship(
-            'Users',
+            'User',
             backref='customer_obj',
             foreign_keys=[customer_id]
             )
 
     driver = db.relationship(
-            'Users',
+            'User',
             backref='driver_obj',
             foreign_keys=[driver_id]
             )
