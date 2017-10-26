@@ -38,7 +38,7 @@ def fullmap():
                 'icon': '//maps.google.com/mapfiles/ms/icons/blue-dot.png',
                 'lat': 37.4300,
                 'lng': -122.1400,
-                'infobox': "Hello I am <b style='color:blue;'>HELLO WORLD BLUE!</b>!"
+                'infobox': "Hello I am <b style='color:blue;'>HELLO WORLD BLUE</b>!"
             },
             {
                 'icon': icons.dots.yellow,
