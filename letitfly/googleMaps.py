@@ -6,10 +6,8 @@ import webbrowser
 
 app = Flask(__name__, template_folder="templates")
 
-# you can set key as config
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyAck9gozAKmXvYT3KXbkvYqV8mU9Vs7Qdk"
 
-# you can also pass key here
 GoogleMaps(app, key="AIzaSyAck9gozAKmXvYT3KXbkvYqV8mU9Vs7Qdk")
 
 
@@ -55,8 +53,6 @@ def fullmap():
                 )
             }
         ],
-        # maptype = "TERRAIN",
-        # zoom="5"
     )
     return render_template('directory.html', fullmap=fullmap)
 
