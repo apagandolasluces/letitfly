@@ -44,24 +44,6 @@ class Rides(db.Model):
     def get_self_ride_id(self):
         return self.ride_id
 
-    """
-    Find all imcomplted (Not picked up yet) ride requests and
-    return them as a list
-    """
-    @staticmethod
-    def find_all_not_picked_up_rides_in_json():
-        try:
-            rides = Rides.query.filter_by(
-                    # picked_up=False
-                    ).all()
-            rides_json = []
-            for ride in rides:
-                rides_json.append(ride.tojson())
-            return rides_json
-        except Exception as e:
-            # return an error in string format if an exception occurs
-            return str(e)
-
     def __repr__(self):
         """Represent user by name"""
         return "{} {}".format(self.start_location, self.end_location)
