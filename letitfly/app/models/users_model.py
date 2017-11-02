@@ -22,17 +22,22 @@ class User(db.Model):
     date_created = db.Column(db.String(50))
     date_modified = db.Column(db.String(50))
 
-    def __init__(self, first_name, last_name, credit_card, email,
-                 driver, username, password, date_created,
+    def __init__(self,
+                 first_name,
+                 last_name,
+                 email,
+                 password,
+                 credit_card,
+                 driver,
+                 date_created,
                  date_modified):
         """Iniitalize with user info"""
         self.first_name = first_name
         self.last_name = last_name
-        self.credit_card = credit_card
         self.email = email
-        self.driver = driver
-        self.username = username
         self.password = password
+        self.credit_card = credit_card
+        self.driver = driver
         self.date_created = date_created
         self.date_modified = date_modified
 

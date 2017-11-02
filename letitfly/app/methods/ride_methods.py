@@ -18,7 +18,8 @@ def post(args):
 
     if customer_id and driver_id and start_location:
             ride = Ride(
-                        customer_id=customer_id, driver_id=driver_id,
+                        customer_id=customer_id,
+                        driver_id=driver_id,
                         start_location=start_location,
                         end_location=start_location,
                         time_finished=str(datetime.now()),
