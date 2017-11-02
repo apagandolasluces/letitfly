@@ -17,7 +17,9 @@ def create_app(config_name):
     app = FlaskAPI(
             __name__, 
             instance_relative_config=True,
-            template_folder='../html/light-bootstrap-dashboard-master/',
+            static_url_path='/assets',
+            static_folder='../html/light-bootstrap-dashboard-master/assets',
+            template_folder='../html/light-bootstrap-dashboard-master',
             )
 
     # register blueprint here
@@ -54,18 +56,16 @@ def create_app(config_name):
                         email=request.form.get('email')
                         ).first()
 
-                print(user.tojson())
                 # Try to authenticate the found user using their password
                 if user and user.validate_password(request.data['password']):
                     # Generate the access token.
                     # This will be used as the authorization header
                     access_token = user.generate_token(user.user_id)
                     if access_token:
-                        response = {
-                                'message': 'You logged in successfully.',
-                                'access_token': access_token.decode()
-                                }
-                        return redirect('/request')
+                        redirect_to_index = redirect('/request')
+                        response = make_response(redirect_to_index)  
+                        response.set_cookie('access_token', value=access_token.decode())
+                        return response
 
                 else:
                     # User does not exist. Therefore, we return an error message
@@ -96,39 +96,43 @@ def create_app(config_name):
         "password": "a"
     }
     """
-    @app.route('/register', methods=['POST'])
+    @app.route('/register', methods=['POST', 'GET'])
     def register():
-        try:
-            user_data = request.data
-            temp_user = User(
-                    first_name=user_data.get('first_name'),
-                    last_name=user_data.get('last_name'),
-                    credit_card=user_data.get('credit_card'),
-                    email=user_data.get('email'),
-                    driver=user_data.get('driver'),
-                    username=user_data.get('username'),
-                    password=user_data.get('password'),
-                    date_created='S',
-                    date_modified='S',
-                    )
-            temp_user.save()
-            content = {'message': 'New user created'}
-            status_code = status.HTTP_201_CREATED
-        except exc.OperationalError as e:
-            # SQLalchemy missing value
-            content = {'err': 'Missing value', 'info': 'Error: %s' % e}
-            status_code = status.HTTP_400_BAD_REQUEST
-        except exc.IntegrityError as e:
-            # SQLalchemy insertion error (such as duplicate value)
-            content = {'err': 'Duplicate value', 'info': 'Error: %s' % e}
-            status_code = status.HTTP_400_BAD_REQUEST
-        except Exception as e:
-            print("*" * 50)
-            print(e)
-            content = {'err': 'Something went wrong', 'info': 'Error: %s' % e}
-            status_code = status.HTTP_400_BAD_REQUEST
-        finally:
-            return content, status_code
+        if request.method == 'POST':
+            try:
+                print('POST register')
+                print(request.form.get('firstname'))
+                temp_user = User(
+                        first_name=request.form.get('firstname'),
+                        last_name=request.form.get('lastname'),
+                        credit_card=request.form.get('creditcard'),
+                        email=request.form.get('email'),
+                        driver=request.form.get('driver'),
+                        username=request.form.get('username'),
+                        password=request.form.get('password'),
+                        date_created='S',
+                        date_modified='S',
+                        )
+                temp_user.save()
+                access_token = temp_user.generate_token(temp_user.user_id)
+
+                redirect_to_index = redirect('/request')
+                response = make_response(redirect_to_index)  
+                response.set_cookie('access_token', value=access_token.decode())
+                return response
+            except exc.OperationalError as e:
+                # SQLalchemy missing value
+                content = {'err': 'Missing value', 'info': 'Error: %s' % e}
+                status_code = status.HTTP_400_BAD_REQUEST
+            except exc.IntegrityError as e:
+                # SQLalchemy insertion error (such as duplicate value)
+                content = {'err': 'Duplicate value', 'info': 'Error: %s' % e}
+                status_code = status.HTTP_400_BAD_REQUEST
+                status_code = status.HTTP_400_BAD_REQUEST
+            finally:
+                return content, status_code
+        else:
+            return render_template('register.html')
 
     """
     Helper methods
@@ -141,57 +145,60 @@ def create_app(config_name):
         except Exception as e:
             return
 
-    @app.route("/request", methods=['POST'])
+    @app.route("/request", methods=['POST', 'GET'])
     def request_ride():
-        access_token = parse_access_token(request)
-        # Access token found
-        if(access_token):
-            user_id = User.decode_token(access_token)
-            # Token is valid
-            if not isinstance(user_id, str):
-                try:
-                    # Decode access token and get user_id that
-                    # belongs to the user who requested the ride
-                    ride_data = request.data
-                    user = User.find_user_by_user_id(user_id)
-                    temp_ride = Rides(
-                            customer=user,
-                            # driver is null at this moment
-                            start_location=ride_data['start_location'],
-                            end_location=ride_data['end_location'],
-                            )
-                    temp_ride.save()
-                    response = {
-                            'message': 'Ride requested successfully',
-                            'ride_id': temp_ride.get_self_ride_id()
-                            }
-                    status_code = status.HTTP_201_CREATED
-                except KeyError as e:
-                    response = {
-                            'err': 'Missing value',
-                            'info': 'Error: %s' % e
-                            }
+        if request.method == 'POST':
+            access_token = parse_access_token(request)
+            # Access token found
+            if(access_token):
+                user_id = User.decode_token(access_token)
+                # Token is valid
+                if not isinstance(user_id, str):
+                    try:
+                        # Decode access token and get user_id that
+                        # belongs to the user who requested the ride
+                        ride_data = request.data
+                        user = User.find_user_by_user_id(user_id)
+                        temp_ride = Rides(
+                                customer=user,
+                                # driver is null at this moment
+                                start_location=ride_data['start_location'],
+                                end_location=ride_data['end_location'],
+                                )
+                        temp_ride.save()
+                        response = {
+                                'message': 'Ride requested successfully',
+                                'ride_id': temp_ride.get_self_ride_id()
+                                }
+                        status_code = status.HTTP_201_CREATED
+                    except KeyError as e:
+                        response = {
+                                'err': 'Missing value',
+                                'info': 'Error: %s' % e
+                                }
+                        status_code = status.HTTP_400_BAD_REQUEST
+                    except Exception as e:
+                        print("*" * 50)
+                        print(e)
+                        response = {
+                                'err': 'Something went wrong',
+                                'info': 'Error: %s' % e
+                                }
+                        status_code = status.HTTP_400_BAD_REQUEST
+                    finally:
+                        return response, status_code
+                # Token is invalid
+                else:
+                    response = {'err': user_id}
                     status_code = status.HTTP_400_BAD_REQUEST
-                except Exception as e:
-                    print("*" * 50)
-                    print(e)
-                    response = {
-                            'err': 'Something went wrong',
-                            'info': 'Error: %s' % e
-                            }
-                    status_code = status.HTTP_400_BAD_REQUEST
-                finally:
                     return response, status_code
-            # Token is invalid
+            # Access token NOT found
             else:
-                response = {'err': user_id}
+                response = {'err': 'No access token found'}
                 status_code = status.HTTP_400_BAD_REQUEST
                 return response, status_code
-        # Access token NOT found
         else:
-            response = {'err': 'No access token found'}
-            status_code = status.HTTP_400_BAD_REQUEST
-            return response, status_code
+            return render_template('maps.html')
 
     """
     GET /search
