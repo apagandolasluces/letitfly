@@ -175,22 +175,27 @@
 
         <div id="floating-panel">
             <h3>Start: San Jose, CA</h3>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <p>
+                    Select an Airport
+                    <b class="caret"></b>
+                    </p>
+                </a>
+                <ul id="end2" class="dropdown-menu">
+                    <li><a id="SFO">SFO</a></li>
+                    <li><a id="OAK">OAK</a></li>
+                    <li><a id="SJC">SJC</a></li>
+                </ul>
+            </li>
             <b>End: </b>
             <select id="end">
-                <option value="chicago, il">Chicago</option>
-                <option value="st louis, mo">St Louis</option>
-                <option value="joplin, mo">Joplin, MO</option>
-                <option value="oklahoma city, ok">Oklahoma City</option>
-                <option value="amarillo, tx">Amarillo</option>
-                <option value="gallup, nm">Gallup, NM</option>
-                <option value="flagstaff, az">Flagstaff, AZ</option>
-                <option value="winona, az">Winona</option>
-                <option value="kingman, az">Kingman</option>
-                <option value="barstow, ca">Barstow</option>
-                <option value="san bernardino, ca">San Bernardino</option>
-                <option value="los angeles, ca">Los Angeles</option>
+                <option value="SFO">SFO</option>
+                <option value="OAK">OAK</option>
+                <option value="SJC">SJC</option>
             </select>
-            <p id="duration"></p>
+            <div id="duration"></div>
+            <div id="reqbutton"></div>
         </div>
         <div id="map"></div>
 
