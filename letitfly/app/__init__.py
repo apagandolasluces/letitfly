@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from app.models.database import db
 from app.models.users_model import User 
 from app.models.drives_model import Rides
-from flask import Blueprint, render_template, abort, request, make_response, jsonify  # Blueprints
+from flask import Blueprint, render_template, abort, request, make_response, jsonify, redirect  # Blueprints
 
 # For route
 from sqlalchemy import exc
@@ -14,7 +14,11 @@ from instance.config import app_config
 
 def create_app(config_name):
     # creates flask application
-    app = FlaskAPI(__name__, instance_relative_config=True)
+    app = FlaskAPI(
+            __name__, 
+            instance_relative_config=True,
+            template_folder='../html/light-bootstrap-dashboard-master/',
+            )
 
     # register blueprint here
 
@@ -37,38 +41,47 @@ def create_app(config_name):
         "password": "pass"
     }
     """
-    @app.route('/auth', methods=['POST'])
+    @app.route('/auth', methods=['POST', 'GET'])
     def authenticate():
-        try:
-            # Get the user object using their email (unique to every user)
-            user = User.query.filter_by(
-                    username=request.data['username']
-                    ).first()
+        if request.method == 'POST':
+            print('Post auth')
+            print('Email: ' + request.form.get('email'))
+            print('PW: ' + request.form.get('password'))
+            try:
+                # Get the user object using their email (unique to every user)
 
-            # Try to authenticate the found user using their password
-            if user and user.validate_password(request.data['password']):
-                # Generate the access token.
-                # This will be used as the authorization header
-                access_token = user.generate_token(user.user_id)
-                if access_token:
+                user = User.query.filter_by(
+                        email=request.form.get('email')
+                        ).first()
+
+                print(user.tojson())
+                # Try to authenticate the found user using their password
+                if user and user.validate_password(request.data['password']):
+                    # Generate the access token.
+                    # This will be used as the authorization header
+                    access_token = user.generate_token(user.user_id)
+                    if access_token:
+                        response = {
+                                'message': 'You logged in successfully.',
+                                'access_token': access_token.decode()
+                                }
+                        return redirect('/request')
+
+                else:
+                    # User does not exist. Therefore, we return an error message
                     response = {
-                            'message': 'You logged in successfully.',
-                            'access_token': access_token.decode()
+                            'err': 'Invalid username or password, Please try again'
                             }
-                    return make_response(jsonify(response)), 200
-            else:
-                # User does not exist. Therefore, we return an error message
-                response = {
-                        'err': 'Invalid username or password, Please try again'
-                        }
-                return make_response(jsonify(response)), 401
+                    return make_response(jsonify(response)), 401
 
-        except Exception as e:
-            # Create a response containing an string error message
-            response = {'err': str(e)}
-            # Return a server error using the HTTP Error
-            # Code 500 (Internal Server Error)
-            return make_response(jsonify(response)), 500
+            except Exception as e:
+                # Create a response containing an string error message
+                response = {'err': str(e)}
+                # Return a server error using the HTTP Error
+                # Code 500 (Internal Server Error)
+                return make_response(jsonify(response)), 500
+        else:
+            return render_template('login.html')
 
     # POST /register
     """
