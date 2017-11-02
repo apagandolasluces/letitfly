@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from app.models.database import db
 from app.models.users_model import User 
 from app.models.drives_model import Rides
-from flask import Blueprint, render_template, abort, request, make_response, jsonify, redirect  # Blueprints
+from flask import Blueprint, render_template, abort, request, make_response, jsonify, redirect, session # Blueprints
 
 # For route
 from sqlalchemy import exc
@@ -27,6 +27,7 @@ def create_app(config_name):
     # set configurations
     app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
     # initialize database with application
     db.init_app(app)
@@ -57,15 +58,18 @@ def create_app(config_name):
                         ).first()
 
                 # Try to authenticate the found user using their password
-                if user and user.validate_password(request.data['password']):
+                if user and user.validate_password(request.form.get('password')):
+                    print('PW correct')
                     # Generate the access token.
                     # This will be used as the authorization header
                     access_token = user.generate_token(user.user_id)
                     if access_token:
-                        redirect_to_index = redirect('/request')
-                        response = make_response(redirect_to_index)  
-                        response.set_cookie('access_token', value=access_token.decode())
-                        return response
+                        # redirect_to_index = redirect('/request')
+                        # response = make_response(redirect_to_index)
+                        # response.set_cookie('access_token', value=access_token.decode())
+                        # return response
+                        session['email'] = request.form.get('email')
+                        return redirect('request')
 
                 else:
                     # User does not exist. Therefore, we return an error message
@@ -101,36 +105,38 @@ def create_app(config_name):
         if request.method == 'POST':
             try:
                 print('POST register')
-                print(request.form.get('firstname'))
+                print('firstname: ' + request.form.get('firstname'))
+                print('lastname: ' + request.form.get('lastname'))
+                print('cc: ' + request.form.get('creditcard'))
+                print('email: ' + request.form.get('email'))
+                print('driver: ' + True if request.form.get('driver') else False)
+                print('pw: ' + request.form.get('password'))
                 temp_user = User(
                         first_name=request.form.get('firstname'),
                         last_name=request.form.get('lastname'),
                         credit_card=request.form.get('creditcard'),
                         email=request.form.get('email'),
-                        driver=request.form.get('driver'),
+                        driver=True if request.form.get('driver') else False,
                         username=request.form.get('username'),
                         password=request.form.get('password'),
                         date_created='S',
                         date_modified='S',
                         )
                 temp_user.save()
-                access_token = temp_user.generate_token(temp_user.user_id)
+                # access_token = temp_user.generate_token(temp_user.user_id)
 
-                redirect_to_index = redirect('/request')
-                response = make_response(redirect_to_index)  
-                response.set_cookie('access_token', value=access_token.decode())
-                return response
+                session['email'] = request.form.get('email')
+                return redirect('request')
             except exc.OperationalError as e:
                 # SQLalchemy missing value
                 content = {'err': 'Missing value', 'info': 'Error: %s' % e}
-                status_code = status.HTTP_400_BAD_REQUEST
+                print(content)
+                return render_template('register.html', content=content)
             except exc.IntegrityError as e:
                 # SQLalchemy insertion error (such as duplicate value)
                 content = {'err': 'Duplicate value', 'info': 'Error: %s' % e}
-                status_code = status.HTTP_400_BAD_REQUEST
-                status_code = status.HTTP_400_BAD_REQUEST
-            finally:
-                return content, status_code
+                print(content)
+                return render_template('register.html', content=content)
         else:
             return render_template('register.html')
 
@@ -147,18 +153,21 @@ def create_app(config_name):
 
     @app.route("/request", methods=['POST', 'GET'])
     def request_ride():
-        if request.method == 'POST':
-            access_token = parse_access_token(request)
+            # access_token = parse_access_token(request)
             # Access token found
-            if(access_token):
-                user_id = User.decode_token(access_token)
+            if 'email' in session:
+                # user_id = User.decode_token(request.cookies.get(''))
+                # user_id = User.decode_token(access_token)
                 # Token is valid
-                if not isinstance(user_id, str):
+                print('Logged in as: ' + session['email'])
+                if request.method == 'POST':
                     try:
                         # Decode access token and get user_id that
                         # belongs to the user who requested the ride
                         ride_data = request.data
-                        user = User.find_user_by_user_id(user_id)
+                        user = User.query.filter_by(
+                                email=session['email']
+                                ).first()
                         temp_ride = Rides(
                                 customer=user,
                                 # driver is null at this moment
@@ -178,7 +187,6 @@ def create_app(config_name):
                                 }
                         status_code = status.HTTP_400_BAD_REQUEST
                     except Exception as e:
-                        print("*" * 50)
                         print(e)
                         response = {
                                 'err': 'Something went wrong',
@@ -186,19 +194,15 @@ def create_app(config_name):
                                 }
                         status_code = status.HTTP_400_BAD_REQUEST
                     finally:
+                        print(response)
                         return response, status_code
-                # Token is invalid
                 else:
-                    response = {'err': user_id}
-                    status_code = status.HTTP_400_BAD_REQUEST
-                    return response, status_code
+                    return render_template('maps.html')
+            # Token is invalid
             # Access token NOT found
-            else:
-                response = {'err': 'No access token found'}
-                status_code = status.HTTP_400_BAD_REQUEST
-                return response, status_code
-        else:
-            return render_template('maps.html')
+            response = {'err': 'Bad token. Please re-login'}
+            print(response)
+            return render_template('login.html')
 
     """
     GET /search
