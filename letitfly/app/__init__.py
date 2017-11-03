@@ -109,7 +109,7 @@ def create_app(config_name):
                 print('lastname: ' + request.form.get('lastname'))
                 print('cc: ' + request.form.get('creditcard'))
                 print('email: ' + request.form.get('email'))
-                print('driver: ' + True if request.form.get('driver') else False)
+                print('driver: ' + str(True if request.form.get('driver') else False))
                 print('pw: ' + request.form.get('password'))
                 temp_user = User(
                         first_name=request.form.get('firstname'),
@@ -180,7 +180,7 @@ def create_app(config_name):
                                 'ride_id': temp_ride.get_self_ride_id()
                                 }
                         status_code = status.HTTP_201_CREATED
-                        return render_template('maps.html', requestedFlag=True)
+                        return redirect('lookfordriver')
                     except KeyError as e:
                         response = {
                                 'err': 'Missing value',
@@ -203,7 +203,31 @@ def create_app(config_name):
             # Access token NOT found
             response = {'err': 'Bad token. Please re-login'}
             print(response)
-            return render_template('login.html')
+            return redirect('auth')
+
+    @app.route("/lookfordriver", methods=['GET'])
+    def look_for_drivre():
+            # Access token found
+            if 'email' in session:
+                # user_id = User.decode_token(request.cookies.get(''))
+                # user_id = User.decode_token(access_token)
+                # Token is valid
+                print('Logged in as: ' + session['email'])
+                # Find ride data by email
+                # If the ride.driver is null
+                    # Render html with message Looking for driver to pick you up
+                    # Refresh the page periodically
+                # Else if the ride.driver is NOT null
+                    # Render html with driver found
+                    # Show where the driver is
+                    # Refresh the page periodically
+                render_template('maps.html', requestedFlad=True)
+
+            # Token is invalid
+            # Access token NOT found
+            response = {'err': 'Bad token. Please re-login'}
+            print(response)
+            return redirect('auth')
 
     """
     GET /search
