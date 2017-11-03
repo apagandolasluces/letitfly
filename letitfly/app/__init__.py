@@ -180,6 +180,7 @@ def create_app(config_name):
                                 'ride_id': temp_ride.get_self_ride_id()
                                 }
                         status_code = status.HTTP_201_CREATED
+                        return render_template('maps.html', requestedFlag=True)
                     except KeyError as e:
                         response = {
                                 'err': 'Missing value',
@@ -197,7 +198,7 @@ def create_app(config_name):
                         print(response)
                         return response, status_code
                 else:
-                    return render_template('maps.html')
+                    return render_template('maps.html', requestingFlag=True)
             # Token is invalid
             # Access token NOT found
             response = {'err': 'Bad token. Please re-login'}

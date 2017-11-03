@@ -232,7 +232,15 @@
 
     <script>
         $().ready(function(){
+            <!-- Only load this when taking care of user requesting ride -->
+            {% if requestingFlag %}
             usermap.initGoogleMaps();
+            {% endif %}
+            <!-- Only load this after user requested a ride and waiting driver to accept (Looking for a driver to pick them up) -->
+            {% if requestedFlag %}
+            lookForDriver.initGoogleMaps();
+            {% endif %}
+
         });
     </script>
 
