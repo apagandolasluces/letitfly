@@ -175,16 +175,20 @@
         {% if requestedFlag %}
         <p>User ride request has been sent. Now we are looking for a driver to pick you up</p>
         {% endif %}
+        {% if driverFoundFlag %}
+        <p>Driver found!</p>
+        {% endif %}
         <p>
-        {{ start }}
+        Start: {{ start }}
         </p>
         <p>
-        {{ end }}
+        End: {{ end }}
+        <p id="pos">{{ driverpos }}<p>
+        Drivre location: {{ driverpos.lat }}
+        Drivre location: {{ driverpos.lng }}
         </p>
-
         <div id="info"></div>
         <div id="map"></div>
-
     </div>
 </div>
 
@@ -215,6 +219,7 @@
 
 	<script src="assets/js/usermap.js"></script>
 	<script src="assets/js/lookForDriver.js"></script>
+	<script src="assets/js/driverfound.js"></script>
 
     <script>
         $().ready(function(){
@@ -226,7 +231,9 @@
             {% if requestedFlag %}
             lookForDriver.initGoogleMaps();
             {% endif %}
-
+            {% if driverFoundFlag %}
+            driverfound.initGoogleMaps({{driverpos.lat}}, {{driverpos.lng}});
+            {% endif %}
         });
     </script>
 

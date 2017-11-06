@@ -189,18 +189,28 @@ def create_app(config_name):
             print(ride.tojson())
 
             # If the ride.driver is null
-            # Render html with message Looking for driver to pick you up
-            # Refresh the page periodically
+            if ride.driver_id is None:
+                # Render html with message Looking for driver to pick you up
+                # Refresh the page periodically
+                return render_template(
+                        'waitmap.html', 
+                        requestedFlag=True,
+                        start=ride.start_location,
+                        end=ride.end_location,
+                        )
             # Else if the ride.driver is NOT null
-            # Render html with driver found
-            # Show where the driver is
-            # Refresh the page periodically
-            return render_template(
-                    'waitmap.html', 
-                    requestedFlag=True,
-                    start=ride.start_location,
-                    end=ride.end_location,
-                    )
+            else:
+                # Render html with driver found
+                # Show where the driver is
+                # Refresh the page periodically
+                print('Driver found')
+                return render_template(
+                        'waitmap.html', 
+                        driverFoundFlag=True,
+                        start=ride.start_location,
+                        driverpos={'lat': 37.38030999999996, 'lng': -121.88269439999998},
+                        end=ride.end_location,
+                        )
 
         # Token is invalid
         # Access token NOT found
