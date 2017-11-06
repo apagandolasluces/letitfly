@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<link rel="icon" type="image/png" href="assets/img/favicon.ico">
+    
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
 	<title>Let It Fly</title>
@@ -13,6 +13,7 @@
 
     <!-- Bootstrap core CSS     -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+	<link rel="icon" type="image/png" href=>
 
     <!-- Animation library for notifications   -->
     <link href="assets/css/animate.min.css" rel="stylesheet"/>
@@ -92,12 +93,12 @@
                                 <h4 class="title">Login</h4>
                             </div>
                             <div class="content">
-                                <form enctype=multipart/form-data>
+                                <form action="" method="post" name="auth">
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group" id="email">
                                                 <label for="exampleInputEmail1">Email address</label>
-                                                <input type="email" class="form-control" placeholder="Email Address">
+                                                <input name="email" type="email" class="form-control" placeholder="Email Address">
                                             </div>
                                         </div>
                                     </div>
@@ -105,7 +106,7 @@
                                         <div class="col-md-5">
                                             <div class="form-group" id="password">
                                                 <label for="exampleInputEmail1">Password</label>
-                                                <input type="email" class="form-control" placeholder="Password">
+                                                <input name="password" type="text" class="form-control" placeholder="Password">
                                             </div>
                                         </div>
                                     </div>
@@ -162,7 +163,7 @@
 </body>
 
     <!--   Core JS Files   -->
-    <script src="assets/js/jquery-1.10.2.js" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename = 'js/jquery-1.10.2.js') }}" type="text/javascript"></script>
 	<script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
 
 	<!--  Checkbox, Radio & Switch Plugins -->

@@ -12,7 +12,6 @@ class User(db.Model):
     credit_card = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     driver = db.Column(db.Boolean)
-    username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(25), nullable=False)
     date_created = db.Column(db.String(50))
     date_modified = db.Column(db.String(50))
