@@ -8,6 +8,7 @@ lookForDriver = {
       zoom: 7,
       center: {lat: 37.33542741901094, lng: -121.88427904493496}
     });
+
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
         lat: position.coords.latitude,
@@ -19,11 +20,10 @@ lookForDriver = {
         title:"You are here!"
       });
 
-      // To add the marker to the map, call setMap();
-      // marker.setMap(map);
+      marker.setMap(map);
       map.setCenter(pos);
       map.setZoom(12);
     });
     directionsDisplay.setMap(map);
   },
-}
+};

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from app.models.database import db
 from app.models.users_model import User 
 from app.models.drives_model import Rides
-from flask import Blueprint, render_template, abort, request, make_response, jsonify, redirect, session # Blueprints
+from flask import Blueprint, render_template, abort, request, make_response, jsonify, redirect, session, url_for # Blueprints
 
 # For route
 from sqlalchemy import exc
@@ -140,196 +140,61 @@ def create_app(config_name):
         else:
             return render_template('register.html')
 
-    """
-    Helper methods
-    get request object and parse access token
-    """
-    def parse_access_token(req):
-        try:
-            auth_header = request.headers.get('Authorization')
-            return auth_header.split(" ")[1]
-        except Exception as e:
-            return
-
     @app.route("/request", methods=['POST', 'GET'])
     def request_ride():
-            # access_token = parse_access_token(request)
-            # Access token found
-            if 'email' in session:
-                # user_id = User.decode_token(request.cookies.get(''))
-                # user_id = User.decode_token(access_token)
-                # Token is valid
-                print('Logged in as: ' + session['email'])
-                if request.method == 'POST':
-                    try:
-                        # Decode access token and get user_id that
-                        # belongs to the user who requested the ride
-                        ride_data = request.data
-                        user = User.query.filter_by(
-                                email=session['email']
-                                ).first()
-                        temp_ride = Rides(
-                                customer=user,
-                                # driver is null at this moment
-                                start_location=ride_data['start_location'],
-                                end_location=ride_data['end_location'],
-                                )
-                        temp_ride.save()
-                        response = {
-                                'message': 'Ride requested successfully',
-                                'ride_id': temp_ride.get_self_ride_id()
-                                }
-                        status_code = status.HTTP_201_CREATED
-                        return redirect('lookfordriver')
-                    except KeyError as e:
-                        response = {
-                                'err': 'Missing value',
-                                'info': 'Error: %s' % e
-                                }
-                        status_code = status.HTTP_400_BAD_REQUEST
-                    except Exception as e:
-                        print(e)
-                        response = {
-                                'err': 'Something went wrong',
-                                'info': 'Error: %s' % e
-                                }
-                        status_code = status.HTTP_400_BAD_REQUEST
-                    finally:
-                        print(response)
-                        return response, status_code
-                else:
-                    return render_template('maps.html', requestingFlag=True)
-            # Token is invalid
-            # Access token NOT found
-            response = {'err': 'Bad token. Please re-login'}
-            print(response)
-            return redirect('auth')
-
-    @app.route("/lookfordriver", methods=['GET'])
-    def look_for_drivre():
-            # Access token found
-            if 'email' in session:
-                # user_id = User.decode_token(request.cookies.get(''))
-                # user_id = User.decode_token(access_token)
-                # Token is valid
-                print('Logged in as: ' + session['email'])
-                # Find ride data by email
-                # If the ride.driver is null
-                    # Render html with message Looking for driver to pick you up
-                    # Refresh the page periodically
-                # Else if the ride.driver is NOT null
-                    # Render html with driver found
-                    # Show where the driver is
-                    # Refresh the page periodically
-                render_template('maps.html', requestedFlad=True)
-
-            # Token is invalid
-            # Access token NOT found
-            response = {'err': 'Bad token. Please re-login'}
-            print(response)
-            return redirect('auth')
-
-    """
-    GET /search
-    Find all the imcompleted ride requests
-    Only driver can access this API
-
-    Return JSON: List of imcompleted ride requests
-    """
-    @app.route("/search", methods=['GET'])
-    def seach_ride():
-        access_token = parse_access_token(request)
+        # access_token = parse_access_token(request)
         # Access token found
-        if(access_token):
-            user_id = User.decode_token(access_token)
+        if 'email' in session:
+            # user_id = User.decode_token(request.cookies.get(''))
+            # user_id = User.decode_token(access_token)
             # Token is valid
-            if not isinstance(user_id, str):
-                try:
-                    # Decode access token and get user_id that
-                    # belongs to the user who requested the ride
-                    user = User.find_user_by_user_id(user_id)
-                    # Check if the user is drivre or not
-                    if user.is_driver():
-                        # If driver, resume
-                        rides_json = Rides.find_all_not_picked_up_rides_in_json()
-                        response = {
-                                'message': 'Ride query return successfully',
-                                'rides': rides_json
-                                }
-                        status_code = status.HTTP_200_OK
-                    else:
-                        # If customer, reject
-                        response = {
-                                'err': 'You are not driver. Only driver can see the requests'
-                                }
-                        status_code = status.HTTP_400_BAD_REQUEST
-                except KeyError as e:
-                    response = {
-                            'err': 'Missing value',
-                            'info': 'Error: %s' % e
-                            }
-                    status_code = status.HTTP_400_BAD_REQUEST
-                except Exception as e:
-                    print("$" * 50)
-                    print(e)
-                    response = {
-                            'err': 'Something went wrong',
-                            'info': 'Error: %s' % e
-                            }
-                    status_code = status.HTTP_400_BAD_REQUEST
-                finally:
-                    return response, status_code
-
-            # Token is invalid
+            print('Logged in as: ' + session['email'])
+            if request.method == 'POST':
+                # Decode access token and get user_id that
+                # belongs to the user who requested the ride
+                ride_data = request.data
+                user = User.query.filter_by(
+                        email=session['email']
+                        ).first()
+                temp_ride = Rides(
+                        customer=user,
+                        # driver is null at this moment
+                        start_location=ride_data['start_location'],
+                        end_location=ride_data['end_location'],
+                        )
+                temp_ride.save()
+                response = {
+                        'message': 'Ride request created'
+                        }
+                return response, status.HTTP_201_CREATED
             else:
-                response = {'err': user_id}
-                status_code = status.HTTP_400_BAD_REQUEST
-                return response, status_code
+                print('Render maps.html')
+                return render_template('maps.html', requestingFlag=True)
+
+    @app.route("/waiting", methods=['GET'])
+    def waiting():
+        # Access token found
+        if 'email' in session:
+            # user_id = User.decode_token(request.cookies.get(''))
+            # user_id = User.decode_token(access_token)
+            # Token is valid
+            print('Looking for driver')
+            print('Logged in as: ' + session['email'])
+            # Find ride data by email
+            # If the ride.driver is null
+            # Render html with message Looking for driver to pick you up
+            # Refresh the page periodically
+            # Else if the ride.driver is NOT null
+            # Render html with driver found
+            # Show where the driver is
+            # Refresh the page periodically
+            return render_template('waitmap.html', requestedFlag=True)
+
+        # Token is invalid
         # Access token NOT found
         else:
-            response = {'err': 'No access token found'}
-            status_code = status.HTTP_400_BAD_REQUEST
-            return response, status_code
-
-    @app.route("/test", methods=['GET'])
-    def hello():
-        temp_user = User(
-                first_name='Test',
-                last_name='Test Last',
-                credit_card=1234,
-                email='test3211@t1e.scom',
-                driver=False,
-                username='13211testnsame',
-                password='test',
-                date_created='test',
-                date_modified='test'
-                )
-        temp_user.save()
-        temp_user1 = User(
-                first_name='Test',
-                last_name='Test Last',
-                credit_card=1234,
-                email='tes3t1j21@t11e.com',
-                driver=False,
-                username='2wk121te1stname',
-                password='test',
-                date_created='test',
-                date_modified='test'
-                )
-        temp_user1.save()
-        temp_ride = Rides(
-                customer=temp_user,
-                driver=temp_user1,
-                start_location='Test Last',
-                end_location='Test Last',
-                time_finished='Test Last',
-                )
-        temp_ride.save()
-
-        return "Hello World!"
-
-    @app.route("/hello", methods=['GET'])
-    def say_hello():
-        return 'hello'
+            response = {'err': 'Bad token. Please re-login'}
+            print(response)
+            return redirect('auth')
 
     return app
