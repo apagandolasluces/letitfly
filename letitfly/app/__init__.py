@@ -175,12 +175,19 @@ def create_app(config_name):
     def waiting():
         # Access token found
         if 'email' in session:
-            # user_id = User.decode_token(request.cookies.get(''))
-            # user_id = User.decode_token(access_token)
             # Token is valid
             print('Looking for driver')
             print('Logged in as: ' + session['email'])
-            # Find ride data by email
+            # Find client
+            user = User.query.filter_by(
+                    email=session['email']
+                    ).first()
+            # Find the ride assosiated with the client
+            ride = Rides.query.filter_by(
+                    customer_id=user.user_id
+                    ).first()
+            print(ride.tojson())
+
             # If the ride.driver is null
             # Render html with message Looking for driver to pick you up
             # Refresh the page periodically
@@ -188,7 +195,12 @@ def create_app(config_name):
             # Render html with driver found
             # Show where the driver is
             # Refresh the page periodically
-            return render_template('waitmap.html', requestedFlag=True)
+            return render_template(
+                    'waitmap.html', 
+                    requestedFlag=True,
+                    start=ride.start_location,
+                    end=ride.end_location,
+                    )
 
         # Token is invalid
         # Access token NOT found

@@ -12,8 +12,8 @@ class Rides(db.Model):
         'users.user_id'), nullable=False)
     driver_id = db.Column(db.Integer, db.ForeignKey(
         'users.user_id'))
-    start_location = db.Column(db.String(50), nullable=False)
-    end_location = db.Column(db.String(50), nullable=False)
+    start_location = db.Column(db.String(100), nullable=False)
+    end_location = db.Column(db.String(100), nullable=False)
     time_finished = db.Column(db.String(50))
     # True if picked up (Customer may or may not arrive the destination)
     # False if not yet picked up

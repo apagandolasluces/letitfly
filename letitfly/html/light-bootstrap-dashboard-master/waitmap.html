@@ -172,6 +172,15 @@
                 </div>
             </div>
         </nav>
+        {% if requestedFlag %}
+        <p>User ride request has been sent. Now we are looking for a driver to pick you up</p>
+        {% endif %}
+        <p>
+        {{ start }}
+        </p>
+        <p>
+        {{ end }}
+        </p>
 
         <div id="info"></div>
         <div id="map"></div>
