@@ -208,7 +208,7 @@ def create_app(config_name):
                         'waitmap.html', 
                         driverFoundFlag=True,
                         start=ride.start_location,
-                        driverpos={'lat': 37.38030999999996, 'lng': -121.88269439999998},
+                        driverpos={'lat': ride.current_lat, 'lng': ride.current_lng},
                         end=ride.end_location,
                         )
 
@@ -231,13 +231,29 @@ def create_app(config_name):
         if 'email' in session:
             # If POST: Called when driver chooses a ride
             if request.method == 'POST':
-                return render_template('login.html', searchFlag=True)
+                print(request.data)
+                print(request.data['id'])
 
                 # request should contain driver's current location
                 # and ride_id
                 # Find the ride data by ride_id
+                ride = Rides.query.filter_by(
+                        ride_id=request.data['id']
+                        ).first()
+                print(ride)
                 # Assign the driver to the ride
+                user = User.query.filter_by(
+                        email=session['email']
+                        ).first()
+                ride.driver_id = user.user_id
+                ride.current_lat = request.data['lat']
+                ride.current_lng = request.data['lng']
+                ride.save()
                 # Redirect to pick up page (Shows the route to the user)
+                # MUST use js to refirect
+                response = {'info': 'Ride appcepted'}
+                return status.HTTP_200_OK
+                
             # If GET
             else:
                 # Render maps.html with all none picked up riders

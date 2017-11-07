@@ -1,3 +1,37 @@
+function acceptRide(rideId) {
+  console.log('Ride accepted');
+  console.log(rideId);
+  navigator.geolocation.getCurrentPosition(function(position) {
+    console.log('Me: ' + pos);
+    var jsonData = {
+      "id": rideId,
+      "lat": position.coords.latitude,
+      "lng": position.coords.longitude,
+    };
+
+    $.ajax({
+      method: "POST",
+      url: "/search",
+      data: JSON.stringify(jsonData),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+    })
+    /*
+     * Excecuted when success
+     */
+      .done(function (data) {
+        console.log("Json from API server " + data.message);
+        window.location.href = "pickup";
+      })
+    /*
+     * Excecuted when unsuccessful
+     */
+      .fail(function (jqXHR) {
+        // Invoke error pop-up
+        console.log(jqXHR.responseJSON);
+      });
+  });
+}
 search = {
   initGoogleMaps: function(data){
     console.log("Search.js is loaded");
@@ -27,6 +61,7 @@ search = {
         console.log(element);
         var contentStr = "<p>Ride ID: " + element.ride_id + "</p>"
                           + "<p>" + element.start_location + "</p>";
+                          // + "<button onclick='acceptRide(\"+element+\")' class='btn btn-info btn-fill pull-left'>Accept</button>";
         // Create info window
         var infowindow = new google.maps.InfoWindow({
           content: contentStr

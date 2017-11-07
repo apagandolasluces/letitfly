@@ -167,12 +167,15 @@
                                 <p>Log out</p>
                             </a>
                         </li>
-						<li class="separator hidden-lg hidden-md"></li>
+						<li chartistlass="separator hidden-lg hidden-md"></li>
                     </ul>
                 </div>
             </div>
         </nav>
-        <p>{{rides}}</p>
+        {% for ride in rides %}
+        <p>{{ ride.ride_id }}: {{ ride.start_location }}</p>
+        <button onclick=acceptRide({{ ride.ride_id }}) class='btn btn-info btn-fill'>Accept</button>
+        {% endfor %}
         <div id="info"></div>
         <div id="map"></div>
     </div>
