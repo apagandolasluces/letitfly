@@ -231,8 +231,10 @@ def create_app(config_name):
         if 'email' in session:
             # If POST: Called when driver chooses a ride
             if request.method == 'POST':
-                print(request.data)
                 print(request.data['id'])
+                print(request.data['lat'])
+                print(request.data['lng'])
+                print(type(request.data['lat']))
 
                 # request should contain driver's current location
                 # and ride_id
@@ -246,13 +248,13 @@ def create_app(config_name):
                         email=session['email']
                         ).first()
                 ride.driver_id = user.user_id
-                ride.current_lat = request.data['lat']
-                ride.current_lng = request.data['lng']
+                ride.current_lat = str(request.data['lat'])
+                ride.current_lng = str(request.data['lng'])
                 ride.save()
                 # Redirect to pick up page (Shows the route to the user)
                 # MUST use js to refirect
                 response = {'info': 'Ride appcepted'}
-                return status.HTTP_200_OK
+                return response, status.HTTP_200_OK
                 
             # If GET
             else:
@@ -275,6 +277,45 @@ def create_app(config_name):
                             )
                 else:
                     return redirect('request')
+
+        else:
+            response = {'err': 'No access token found'}
+            status_code = status.HTTP_400_BAD_REQUEST
+            return response, status_code
+
+    @app.route("/pickup", methods=['GET', 'POST'])
+    def pickup():
+        # Access token found
+        if 'email' in session:
+            # If POST: Called when driver chooses a ride
+            if request.method == 'POST':
+                print(request.data)
+                # Picked up
+                # Change the status to picked_up = True
+                # Show the route to the destination
+
+            else:
+                # Show the route to the user
+                # Show picked up button
+                # Find user id
+                user = User.query.filter_by(
+                        email=session['email']
+                        ).first()
+
+                # Get ride data and send user location by user id and pick_up = false
+                ride = Rides.query.filter_by(
+                        driver_id=user.user_id,
+                        picked_up=False
+                        ).first()
+
+                print('GET /pickup Ride info')
+                print(ride.tojson())
+
+                return render_template(
+                        'drivermap.html',
+                        pickupFlag=True,
+                        ride=ride.tojson()
+                        )
 
         else:
             response = {'err': 'No access token found'}

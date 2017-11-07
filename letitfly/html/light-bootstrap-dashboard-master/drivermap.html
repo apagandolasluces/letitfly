@@ -172,10 +172,16 @@
                 </div>
             </div>
         </nav>
+        {% if searchFlag %}
         {% for ride in rides %}
         <p>{{ ride.ride_id }}: {{ ride.start_location }}</p>
         <button onclick=acceptRide({{ ride.ride_id }}) class='btn btn-info btn-fill'>Accept</button>
         {% endfor %}
+        {% endif %}
+        {% if pickupFlag %}
+        <p>Ride ID: {{ ride.ride_id }}</p>
+        <p>Rider Location address: {{ ride.start_location }}</p>
+        {% endif %}
         <div id="info"></div>
         <div id="map"></div>
     </div>
@@ -207,12 +213,17 @@
 	<script src="assets/js/demo.js"></script>
 
 	<script src="assets/js/search.js"></script>
+	<script src="assets/js/pickup.js"></script>
 
     <script>
         $().ready(function(){
-            var data = {{ rides|tojson }};
             {% if searchFlag %}
+            var data = {{ rides|tojson }};
             search.initGoogleMaps(data);
+            {% endif %}
+            {% if pickupFlag %}
+            var data = {{ ride|tojson }};
+            pickup.initGoogleMaps(data);
             {% endif %}
         });
     </script>

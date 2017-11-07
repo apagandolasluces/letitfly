@@ -2,7 +2,6 @@ function acceptRide(rideId) {
   console.log('Ride accepted');
   console.log(rideId);
   navigator.geolocation.getCurrentPosition(function(position) {
-    console.log('Me: ' + pos);
     var jsonData = {
       "id": rideId,
       "lat": position.coords.latitude,
