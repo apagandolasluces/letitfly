@@ -52,7 +52,7 @@ class Rides(db.Model):
     def find_all_not_picked_up_rides_in_json():
         try:
             rides = Rides.query.filter_by(
-                    # picked_up=False
+                    picked_up=False
                     ).all()
             rides_json = []
             for ride in rides:
@@ -62,6 +62,16 @@ class Rides(db.Model):
             # return an error in string format if an exception occurs
             return str(e)
 
+    @staticmethod
+    def find_all_no_driver_assigned_rides_in_json():
+        rides = Rides.query.filter_by(
+                driver_id=None
+                ).all()
+        rides_json = []
+        for ride in rides:
+            rides_json.append(ride.tojson())
+        return rides_json
+
     def __repr__(self):
         """Represent user by name"""
         return "{} {}".format(self.start_location, self.end_location)
@@ -69,6 +79,7 @@ class Rides(db.Model):
     def tojson(self):
         """Represent ride data as JSON object"""
         return {
+                'ride_id': self.ride_id,
                 'customer_id': self.customer_id,
                 'driver_id': self.driver_id,
                 'start_location': self.start_location,

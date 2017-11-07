@@ -215,8 +215,54 @@ def create_app(config_name):
         # Token is invalid
         # Access token NOT found
         else:
-            response = {'err': 'Bad token. Please re-login'}
-            print(response)
-            return redirect('auth')
+            print('Render maps.html')
+            return render_template('maps.html', requestingFlag=True)
+
+    """
+    GET /search
+    Find all the imcompleted ride requests
+    Only driver can access this API
+
+    Return JSON: List of imcompleted ride requests
+    """
+    @app.route("/search", methods=['GET', 'POST'])
+    def seach_ride():
+        # Access token found
+        if 'email' in session:
+            # If POST: Called when driver chooses a ride
+            if request.method == 'POST':
+                return render_template('login.html', searchFlag=True)
+
+                # request should contain driver's current location
+                # and ride_id
+                # Find the ride data by ride_id
+                # Assign the driver to the ride
+                # Redirect to pick up page (Shows the route to the user)
+            # If GET
+            else:
+                # Render maps.html with all none picked up riders
+                # Get user data
+                user = User.query.filter_by(
+                        email=session['email']
+                        ).first()
+                # User must be a driver
+                if user.is_driver():
+                    # If driver
+                    # get all none picked up user data
+                    print('Rides')
+                    rides = Rides.find_all_no_driver_assigned_rides_in_json()
+                    # render html with ride_id and user locations
+                    return render_template(
+                            'drivermap.html',
+                            searchFlag=True,
+                            rides=rides
+                            )
+                else:
+                    return redirect('request')
+
+        else:
+            response = {'err': 'No access token found'}
+            status_code = status.HTTP_400_BAD_REQUEST
+            return response, status_code
 
     return app
