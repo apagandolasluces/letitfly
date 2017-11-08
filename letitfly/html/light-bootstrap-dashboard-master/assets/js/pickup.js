@@ -5,7 +5,11 @@ function DisplayRoute(directionsService, directionsDisplay, currentPos, userAddr
     travelMode: 'DRIVING'
   }, function(response, status) {
     if (status === 'OK') {
-      console.log(response);
+      console.log('Current POS');
+      console.log(currentPos);
+      console.log('User addr');
+      console.log(userAddr);
+
       directionsDisplay.setDirections(response);
     } else {
       window.alert('Directions request failed due to ' + status);

@@ -251,6 +251,10 @@ def create_app(config_name):
                 ride.current_lat = str(request.data['lat'])
                 ride.current_lng = str(request.data['lng'])
                 ride.save()
+
+                # Save the ride id to session
+                session['ride_id'] = ride.ride_id
+
                 # Redirect to pick up page (Shows the route to the user)
                 # MUST use js to refirect
                 response = {'info': 'Ride appcepted'}
@@ -291,21 +295,17 @@ def create_app(config_name):
             if request.method == 'POST':
                 print(request.data)
                 # Picked up
+                # Driver can pick up a rider only if
+                # Distance between driver and rider is less than 1 mile
                 # Change the status to picked_up = True
                 # Show the route to the destination
 
             else:
                 # Show the route to the user
                 # Show picked up button
-                # Find user id
-                user = User.query.filter_by(
-                        email=session['email']
-                        ).first()
-
                 # Get ride data and send user location by user id and pick_up = false
                 ride = Rides.query.filter_by(
-                        driver_id=user.user_id,
-                        picked_up=False
+                        ride_id=session['ride_id']
                         ).first()
 
                 print('GET /pickup Ride info')
