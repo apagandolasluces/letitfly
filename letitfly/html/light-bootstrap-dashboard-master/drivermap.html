@@ -179,8 +179,9 @@
         {% endfor %}
         {% endif %}
         {% if pickupFlag %}
-        <p>Ride ID: {{ ride.ride_id }}</p>
-        <p>Rider Location address: {{ ride.start_location }}</p>
+        <p>Ride ID: <div id='ride-id'>{{ ride.ride_id }}</div></p>
+        <p>Rider Location address: <div id='start-location'>{{ ride.start_location }}</div></p>
+        <button onclick="pickupRider('{{ ride.start_location }}');" class="btn btn-info btn-fill pull-left">Picked up</button>
         {% endif %}
         <div id="info"></div>
         <div id="map"></div>

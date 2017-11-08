@@ -1,3 +1,38 @@
+function pickupRider(riderAddr) {
+  console.log('Picked up button is clicked');
+  console.log('pickupRider param: ' + riderAddr);
+  
+  // Send the dirver location
+  navigator.geolocation.getCurrentPosition(function(position) {
+    var jsonData = {
+      "lat": position.coords.latitude,
+      "lng": position.coords.longitude,
+    };
+
+    $.ajax({
+      method: "POST",
+      url: "/pickup",
+      data: JSON.stringify(jsonData),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+    })
+    /*
+     * Excecuted when success
+     */
+      .done(function (data) {
+        console.log("Json from API server " + data.message);
+        window.location.href = "drive";
+      })
+    /*
+     * Excecuted when unsuccessful
+     */
+      .fail(function (jqXHR) {
+        // Invoke error pop-up
+        console.log(jqXHR.responseJSON);
+      });
+  });
+}
+
 function DisplayRoute(directionsService, directionsDisplay, currentPos, userAddr) {
   directionsService.route({
     origin: currentPos,
@@ -16,7 +51,6 @@ function DisplayRoute(directionsService, directionsDisplay, currentPos, userAddr
     }
   });
 }
-
 
 pickup = {
   initGoogleMaps: function(ride){

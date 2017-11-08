@@ -297,8 +297,12 @@ def create_app(config_name):
                 # Picked up
                 # Driver can pick up a rider only if
                 # Distance between driver and rider is less than 1 mile
+                # Distance check is already done by javascript in frontend
+                # When the program goes here, distance between drivre and rider is less than 1 mile
                 # Change the status to picked_up = True
                 # Show the route to the destination
+                # Redirect to drive
+                # Redirect must be done by JS here
 
             else:
                 # Show the route to the user
