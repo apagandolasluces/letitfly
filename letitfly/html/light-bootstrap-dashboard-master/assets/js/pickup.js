@@ -4,32 +4,79 @@ function pickupRider(riderAddr) {
   
   // Send the dirver location
   navigator.geolocation.getCurrentPosition(function(position) {
-    var jsonData = {
+    var driverPos = {
       "lat": position.coords.latitude,
       "lng": position.coords.longitude,
     };
 
-    $.ajax({
-      method: "POST",
-      url: "/pickup",
-      data: JSON.stringify(jsonData),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-    })
-    /*
-     * Excecuted when success
-     */
-      .done(function (data) {
-        console.log("Json from API server " + data.message);
-        window.location.href = "drive";
-      })
-    /*
-     * Excecuted when unsuccessful
-     */
-      .fail(function (jqXHR) {
-        // Invoke error pop-up
-        console.log(jqXHR.responseJSON);
-      });
+    // check if the drive and rider are close (less than 60 second by car)
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [driverPos],
+        destinations: [riderAddr],
+        travelMode: 'DRIVING',
+      }, callback);
+
+    function callback(response, status) {
+      if (status == 'OK') {
+        console.log(response);
+        var durationFromDriverToRide = response.rows[0].elements[0].duration.value;
+        console.log(durationFromDriverToRide);
+        if (durationFromDriverToRide < 60) {
+          // True
+          $.ajax({
+            method: "POST",
+            url: "/pickup",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+          })
+          /*
+           * Excecuted when success
+           */
+            .done(function (data) {
+              console.log("Json from API server " + data.message);
+              window.location.href = "drive";
+            })
+          /*
+           * Excecuted when unsuccessful
+           */
+            .fail(function (jqXHR) {
+              // Invoke error pop-up
+              console.log(jqXHR.responseJSON);
+            });
+        } else {
+          // False
+          alert('Driver is too far away from ride (More than 60s)');
+          /*
+           * For only testing
+           */
+          $.ajax({
+            method: "POST",
+            url: "/pickup",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+          })
+          /*
+           * Excecuted when success
+           */
+            .done(function (data) {
+              console.log("Json from API server " + data.message);
+              window.location.href = "drive";
+            })
+          /*
+           * Excecuted when unsuccessful
+           */
+            .fail(function (jqXHR) {
+              // Invoke error pop-up
+              console.log(jqXHR.responseJSON);
+            });
+        }
+      } else {
+        alert('Error was: ' + status);
+      }
+    }
+
   });
 }
 

@@ -303,6 +303,13 @@ def create_app(config_name):
                 # Show the route to the destination
                 # Redirect to drive
                 # Redirect must be done by JS here
+                ride = Rides.query.filter_by(
+                        ride_id=session['ride_id']
+                        ).first()
+                ride.picked_up = True
+                ride.save()
+                response = {'info': 'Rider picked up'}
+                return response, status.HTTP_200_OK
 
             else:
                 # Show the route to the user
@@ -325,5 +332,30 @@ def create_app(config_name):
             response = {'err': 'No access token found'}
             status_code = status.HTTP_400_BAD_REQUEST
             return response, status_code
+
+    # @app.route("/drive", methods=['GET', 'POST'])
+    # def drive():
+    #     # Access token found
+    #     if 'email' in session:
+    #         # If POST: Called when driver chooses a ride
+    #         # driver can see the the route to the destination from current location
+    #         # 
+    #         # if request.method == 'POST':
+    #         #     # Driver dropping off the client
+    #         #     
+
+    #         # else:
+    #         #     # Driver can see the route to the destination
+    #         #     # [When I have time] Update the driver location periodically
+    #         #     return render_template(
+    #         #             'drivermap.html',
+    #         #             driveFlag=True,
+    #         #             ride=ride.tojson()
+    #         #             )
+
+    #     else:
+    #         response = {'err': 'No access token found'}
+    #         status_code = status.HTTP_400_BAD_REQUEST
+    #         return response, status_code
 
     return app
