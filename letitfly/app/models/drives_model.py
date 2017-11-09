@@ -1,5 +1,6 @@
 from app import db
 from app.models.users_model import User
+import datetime
 
 
 class Rides(db.Model):
@@ -45,6 +46,10 @@ class Rides(db.Model):
 
     def get_self_ride_id(self):
         return self.ride_id
+
+    def set_current_to_time_finished(self):
+        self.time_finished = datetime.datetime.now()
+        self.save()
 
     """
     Find all imcomplted (Not picked up yet) ride requests and

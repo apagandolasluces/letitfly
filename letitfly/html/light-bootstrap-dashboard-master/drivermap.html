@@ -183,7 +183,18 @@
         <p>Rider Location address: <div id='start-location'>{{ ride.start_location }}</div></p>
         <button onclick="pickupRider('{{ ride.start_location }}');" class="btn btn-info btn-fill pull-left">Picked up</button>
         {% endif %}
+        {% if driveFlag %}
+        <button onclick="dropOff('{{ ride.end_location }}');" class="btn btn-info btn-fill pull-left">Drop off</button>
+        {% endif %}
         <div id="info"></div>
+        
+        {% if paymentFlag %}
+        <p>Search and pick up more people?</p>
+
+        <button onclick=redirectTo('search') class='btn btn-info btn-fill'>Search</button>
+
+        {% endif %}
+
         <div id="map"></div>
     </div>
 </div>
@@ -215,6 +226,8 @@
 
 	<script src="assets/js/search.js"></script>
 	<script src="assets/js/pickup.js"></script>
+	<script src="assets/js/drive.js"></script>
+	<script src="assets/js/payment.js"></script>
 
     <script>
         $().ready(function(){
@@ -225,6 +238,14 @@
             {% if pickupFlag %}
             var data = {{ ride|tojson }};
             pickup.initGoogleMaps(data);
+            {% endif %}
+            {% if driveFlag %}
+            var data = {{ ride|tojson }};
+            drive.initGoogleMaps(data);
+            {% endif %}
+            {% if paymentFlag %}
+            var data = {{ ride|tojson }};
+            payment.initGoogleMaps(data);
             {% endif %}
         });
     </script>

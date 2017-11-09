@@ -203,6 +203,10 @@ def create_app(config_name):
                 # Render html with driver found
                 # Show where the driver is
                 # Refresh the page periodically
+                # TODO If driver_id is NOT null and picked_up = True
+                # Show rider is picked up
+                # TODO if driver id is NOT null and picked up = True and finished_date is NOT null
+                # Show the rider amount they paid
                 print('Driver found')
                 return render_template(
                         'waitmap.html', 
@@ -259,7 +263,7 @@ def create_app(config_name):
                 # MUST use js to refirect
                 response = {'info': 'Ride appcepted'}
                 return response, status.HTTP_200_OK
-                
+
             # If GET
             else:
                 # Render maps.html with all none picked up riders
@@ -333,29 +337,62 @@ def create_app(config_name):
             status_code = status.HTTP_400_BAD_REQUEST
             return response, status_code
 
-    # @app.route("/drive", methods=['GET', 'POST'])
-    # def drive():
-    #     # Access token found
-    #     if 'email' in session:
-    #         # If POST: Called when driver chooses a ride
-    #         # driver can see the the route to the destination from current location
-    #         # 
-    #         # if request.method == 'POST':
-    #         #     # Driver dropping off the client
-    #         #     
+    @app.route("/drive", methods=['GET', 'POST'])
+    def drive():
+        # Access token found
+        if 'email' in session:
+            # If POST: Called when driver chooses a ride
+            # driver can see the the route to the destination from current location
+            # Set the finished date so rider can also see the amount they paid
+            if request.method == 'POST':
+                # Driver dropping off the client
+                # Set the finish time
+                # Render to payment 
+                # rendering must be done by the js
+                ride = Rides.query.filter_by(
+                        ride_id=session['ride_id']
+                        ).first()
+                ride.set_current_to_time_finished()
+                response = {'info': 'Dropped off a rider'}
+                return response, status.HTTP_200_OK
 
-    #         # else:
-    #         #     # Driver can see the route to the destination
-    #         #     # [When I have time] Update the driver location periodically
-    #         #     return render_template(
-    #         #             'drivermap.html',
-    #         #             driveFlag=True,
-    #         #             ride=ride.tojson()
-    #         #             )
+            else:
+                # Driver can see the route to the destination
+                # [When I have time] Update the driver location periodically
+                ride = Rides.query.filter_by(
+                        ride_id=session['ride_id']
+                        ).first()
 
-    #     else:
-    #         response = {'err': 'No access token found'}
-    #         status_code = status.HTTP_400_BAD_REQUEST
-    #         return response, status_code
+                return render_template(
+                        'drivermap.html',
+                        driveFlag=True,
+                        ride=ride.tojson()
+                        )
+
+        else:
+            response = {'err': 'No access token found'}
+            status_code = status.HTTP_400_BAD_REQUEST
+            return response, status_code
+
+    @app.route("/payment", methods=['GET'])
+    def payment():
+        # Access token found
+        if 'email' in session:
+            # Driver can see the money they earned
+            # Driver can click a button to go /search
+            # to find another ride and start ride again
+            ride = Rides.query.filter_by(
+                    ride_id=session['ride_id']
+                    ).first()
+            return render_template(
+                    'drivermap.html',
+                    ride=ride.tojson(),
+                    paymentFlag=True,
+                    )
+
+        else:
+            response = {'err': 'No access token found'}
+            status_code = status.HTTP_400_BAD_REQUEST
+            return response, status_code
 
     return app
