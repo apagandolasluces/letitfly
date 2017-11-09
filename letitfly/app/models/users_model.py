@@ -66,3 +66,14 @@ class User(db.Model):
         False if self is a customer
         """
         return self.driver
+
+
+def find_user_by_user_id(user_id):
+    """Find one user by user_id (Primary Key)"""
+    try:
+        return User.query.filter_by(
+                user_id=user_id
+                ).first()
+    except Exception as e:
+        # return an error in string format if an exception occurs
+        return str(e)

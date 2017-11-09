@@ -1,11 +1,5 @@
 from flask import request
 from flask_api import FlaskAPI
-from flask_sqlalchemy import SQLAlchemy
-from app.models.database import db
-from app.models.users_model import User 
-from app.models.drives_model import Rides
-from flask import Blueprint, render_template, abort, request, make_response, jsonify, redirect, session # Blueprints
-
 
 from app.models.database import db
 from app.routes.user_routes import authenticate, register
@@ -83,6 +77,10 @@ def create_app(config_name):
     @app.route("/search", methods=['GET'])
     def search_ride():
         return search_for_ride(request)
+
+    @app.route("/history", methods=['GET'])
+    def get_history():
+        return get_drive_history(request)
 
     @app.route("/test", methods=['GET'])
     def hello():

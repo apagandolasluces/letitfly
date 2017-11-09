@@ -2,6 +2,7 @@ from sqlalchemy import exc
 from flask import render_template, request, redirect, session, make_response, jsonify
 
 from app.models.users_model import User
+from app.methods.authentication_methods import *
 
 
 def authenticate():
@@ -14,11 +15,11 @@ def authenticate():
                         ).first()
 
                 # Try to authenticate the found user using their password
-                if user and user.validate_password(request.form.get('password')):
+                if user and validate_password(user, request.form.get('password')):
                     print('PW correct')
                     # Generate the access token.
                     # This will be used as the authorization header
-                    access_token = user.generate_token(user.user_id)
+                    access_token = generate_token(user, user.user_id)
                     if access_token:
                         # redirect_to_index = redirect('/request')
                         # response = make_response(redirect_to_index)

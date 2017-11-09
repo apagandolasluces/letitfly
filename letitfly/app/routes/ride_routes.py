@@ -3,6 +3,7 @@ from flask import render_template, request, redirect, session, make_response
 
 from app.models.users_model import User
 from app.models.drives_model import Rides
+from app.methods.authentication_methods import parse_access_token
 
 
 def request_ride():
@@ -59,7 +60,31 @@ def request_ride():
             return render_template('login.html')
 
 
-def search_ride():
+def get_ride_history():
+    access_token = parse_access_token(request)
+    if(access_token):
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            try:
+                rides = Rides.query.filter_by(customer_id=user_id).all()
+                rides_json = [ride.tojson() for ride in rides]
+                response = {
+                        'message': 'Ride history returned successfully',
+                        'rides': rides_json
+                }
+                status_code = status.HTTP_200_OK
+            except Exception as e:
+                response = {
+                        'err': 'Something went wrong',
+                        'info': 'Error %s' % e
+                }
+                status_code = status.HTTP_400_BAD_REQUEST
+            finally:
+                return response, status_code
+
+
+
+def search_for_ride():
         access_token = parse_access_token(request)
         # Access token found
         if(access_token):
@@ -70,7 +95,7 @@ def search_ride():
                     # Decode access token and get user_id that
                     # belongs to the user who requested the ride
                     user = User.find_user_by_user_id(user_id)
-                    # Check if the user is drivre or not
+                    # Check if the user is driver or not
                     if user.is_driver():
                         # If driver, resume
                         rides_json = Rides.find_all_not_picked_up_rides_in_json()
@@ -92,8 +117,6 @@ def search_ride():
                             }
                     status_code = status.HTTP_400_BAD_REQUEST
                 except Exception as e:
-                    print("$" * 50)
-                    print(e)
                     response = {
                             'err': 'Something went wrong',
                             'info': 'Error: %s' % e
@@ -112,12 +135,3 @@ def search_ride():
             response = {'err': 'No access token found'}
             status_code = status.HTTP_400_BAD_REQUEST
             return response, status_code
-
-
-def parse_access_token(request):
-    """Get request object and parse access token"""
-    try:
-        auth_header = request.headers.get('Authorization')
-        return auth_header.split(" ")[1]
-    except Exception as e:
-        return
