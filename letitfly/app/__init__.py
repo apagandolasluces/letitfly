@@ -184,12 +184,17 @@ def create_app(config_name):
                     ).first()
             # Find the ride assosiated with the client
             ride = Rides.query.filter_by(
-                    customer_id=user.user_id
+                    customer_id=user.user_id,
+                    time_finished=None
                     ).first()
             print(ride.tojson())
 
-            # If the ride.driver is null
-            if ride.driver_id is None:
+            # If the ride.driver is null and
+            # not picked up
+            # not finished
+            if ride.driver_id is None and \
+               ride.picked_up is False and \
+               ride.time_finished is None:
                 # Render html with message Looking for driver to pick you up
                 # Refresh the page periodically
                 return render_template(
@@ -199,7 +204,11 @@ def create_app(config_name):
                         end=ride.end_location,
                         )
             # Else if the ride.driver is NOT null
-            else:
+            # Not yet picked up
+            # Not yet finished
+            elif ride.driver_id is not None and \
+                 ride.picked_up is False:
+                # ride.time_finished is None:
                 # Render html with driver found
                 # Show where the driver is
                 # Refresh the page periodically

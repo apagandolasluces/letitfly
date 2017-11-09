@@ -2,6 +2,7 @@ from app.models.database import db
 from app import db
 from flask import current_app
 import jwt
+from app.models.drives_model import Rides
 from datetime import datetime, timedelta
 from werkzeug.security import safe_str_cmp
 
@@ -72,6 +73,19 @@ class User(db.Model):
         False if self is a customer
         """
         return self.driver
+
+    def has_incompleted_ride(self):
+        """
+        Check if the user has incompleted ride
+        Return false if the user does not have any incompleted ride
+        (means all rides are completed)
+        true if user has incompleted ride
+        """
+        rides = Rides.find_ride_by_email(self.email)
+        for ride in rides:
+            if ride.is_completed() is False:
+                return True
+        return False
 
     def generate_token(self, user_id):
         """Generates the access token to be used as the Authorization header"""

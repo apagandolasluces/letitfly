@@ -1,5 +1,4 @@
 from app import db
-from app.models.users_model import User
 import datetime
 
 
@@ -50,6 +49,20 @@ class Rides(db.Model):
     def set_current_to_time_finished(self):
         self.time_finished = datetime.datetime.now()
         self.save()
+
+    def is_completed(self):
+        """
+        Return True if the ride is completed
+        """
+        return self.driver_id is not None and \
+               self.picked_up is True and \
+               self.time_finished is not None
+
+    @staticmethod
+    def find_rides_by_email(self, email):
+        return Rides.query.filter_by(
+                email=email
+                ).all()
 
     """
     Find all imcomplted (Not picked up yet) ride requests and

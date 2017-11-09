@@ -224,10 +224,18 @@
 	<!-- Light Bootstrap Table DEMO methods, don't include it in your project! -->
 	<script src="assets/js/demo.js"></script>
 
+    {% if searchFlag %}
 	<script src="assets/js/search.js"></script>
+    {% endif %}
+    {% if pickupFlag %}
 	<script src="assets/js/pickup.js"></script>
+    {% endif %}
+    {% if driveFlag %}
 	<script src="assets/js/drive.js"></script>
+    {% endif %}
+    {% if paymentFlag %}
 	<script src="assets/js/payment.js"></script>
+    {% endif %}
 
     <script>
         $().ready(function(){
