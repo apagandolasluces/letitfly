@@ -1,6 +1,10 @@
 from datetime import datetime
 from app.models.users_model import User
 
+"""
+NOTE:
+This file handles user information queries from the database.
+"""
 
 def post(args):
     """

@@ -1,6 +1,10 @@
 from datetime import datetime
 from app.models.users_model import Ride
 
+"""
+NOTE:
+This file handles ride queries from the database.
+"""
 
 def post(args):
     """
