@@ -1,1 +1,1 @@
-web: python letitfly/run.py
+web: cd letitfly && python run.py
