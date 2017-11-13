@@ -7,6 +7,9 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET = os.getenv('SECRET')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    # HOST = '0.0.0.0'
+    # port = int(os.environ.get('PORT', 5001))
+    # port = 5001
 
 
 class DevelopmentConfig(Config):
