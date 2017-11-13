@@ -123,4 +123,8 @@ def create_app(config_name):
     def say_hello():
         return 'hello'
 
+    @app.route("/", methods=['GET'])
+    def defalt():
+        return 'Hello from server'
+
     return app
