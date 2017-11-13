@@ -28,5 +28,7 @@ venv
 *.pyc
 build
 
+migrations
+
 # For dummies [me]
 *.pem
