@@ -8,7 +8,6 @@ class Config(object):
     SECRET = os.getenv('SECRET')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
-
 class DevelopmentConfig(Config):
     """Configurations for Development."""
     DEBUG = True
@@ -28,6 +27,7 @@ class StagingConfig(Config):
 
 class ProductionConfig(Config):
     """Configurations for Production."""
+    SQLALCHEMY_DATABASE_URI = os.getenv('REMOTE_DATABASE_URL')
     DEBUG = False
     TESTING = False
 

@@ -14,7 +14,7 @@ from app.models.drives_model import Rides
 def create_app(config_name):
     # creates flask application
     app = FlaskAPI(
-            __name__, 
+            __name__,
             instance_relative_config=True,
             static_url_path='/assets',
             static_folder='../html/light-bootstrap-dashboard-master/assets',
@@ -122,5 +122,9 @@ def create_app(config_name):
     @app.route("/hello", methods=['GET'])
     def say_hello():
         return 'hello'
+
+    @app.route("/", methods=['GET'])
+    def defalt():
+        return 'Hello from server'
 
     return app
